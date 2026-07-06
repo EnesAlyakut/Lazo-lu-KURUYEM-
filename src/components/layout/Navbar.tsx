@@ -1,0 +1,277 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { ChevronDown, Menu, Search, ShoppingCart, X } from "lucide-react";
+import { useCartStore } from "@/store/cartStore";
+
+type NavCategory = {
+  name: string;
+  href: string;
+};
+
+const fallbackCategories: NavCategory[] = [
+  { name: "Leblebi", href: "/urunler?kategori=leblebi" },
+  { name: "Kuruyemiş", href: "/urunler?kategori=kuruyemis" },
+  { name: "Kuru Meyve", href: "/urunler?kategori=kuru-meyve" },
+  { name: "Karışık Paket", href: "/urunler?kategori=karisik-paket" },
+  { name: "Hediyelik Kutu", href: "/urunler?kategori=hediyelik-kutu" },
+  { name: "LüksLeb Kurabiyeleri", href: "/urunler?kategori=luksleb-kurabiyeleri" },
+  { name: "Çorum Hatırası Kutular", href: "/urunler?kategori=corum-hatirasi-kutular" },
+  { name: "Karışık Hediyelikler", href: "/urunler?kategori=karisik-hediyelikler" },
+  { name: "Boş Ambalajlar", href: "/urunler?kategori=bos-ambalajlar" },
+  { name: "Hatıra Ürünleri", href: "/urunler?kategori=hatira-urunleri" },
+];
+
+const navLinks = [
+  { name: "Ana Sayfa", href: "/" },
+  { name: "Ürünler", href: "/urunler", hasDropdown: true },
+  { name: "Blog", href: "/blog" },
+  { name: "Hakkımızda", href: "/hakkimizda" },
+  { name: "İletişim", href: "/iletisim" },
+];
+
+export default function Navbar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [categories, setCategories] = useState<NavCategory[]>(fallbackCategories);
+  const pathname = usePathname();
+  const { items } = useCartStore();
+
+  const totalItems = mounted ? items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    let ignore = false;
+
+    fetch("/api/kategoriler?withCount=false")
+      .then((response) => (response.ok ? response.json() : []))
+      .then((data: Array<{ name: string; slug: string }>) => {
+        if (!ignore && Array.isArray(data) && data.length > 0) {
+          setCategories(
+            data.map((category) => ({
+              name: category.name,
+              href: `/urunler?kategori=${category.slug}`,
+            }))
+          );
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    setIsScrolled(window.scrollY > 20);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+    setIsDropdownOpen(false);
+  }, [pathname]);
+
+  return (
+    <>
+      <div className="bg-gradient-to-r from-brand-700 via-brand-600 to-amber-500 text-white text-center py-2 text-sm font-medium">
+        <span className="container-main flex items-center justify-center gap-2 leading-snug">
+          <span>
+            Çorum leblebisi ve taze kuruyemişlerde özel fırsatlar sizi bekliyor.
+          </span>
+        </span>
+      </div>
+
+      <nav
+        className={`sticky top-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? "bg-cream-50/95 backdrop-blur-md shadow-sm border-b border-brand-100"
+            : "bg-white border-b border-brand-50"
+        }`}
+      >
+        <div className="container-main">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            <Link href="/" className="flex items-center gap-2 shrink-0">
+              <Image
+                src="/images/logo_circular.png"
+                alt="FK KURUYEMİŞ Logo"
+                width={40}
+                height={40}
+                className="object-contain"
+                priority
+              />
+              <div>
+                <span className="text-lg sm:text-xl font-bold text-brand-700 font-display">
+                  FK KURUYEMİŞ
+                </span>
+                <p className="text-xs text-brand-500 hidden sm:block">
+                  Doğal & Taze
+                </p>
+              </div>
+            </Link>
+
+            <div className="hidden lg:flex items-center gap-1">
+              {navLinks.map((link) =>
+                link.hasDropdown ? (
+                  <div
+                    key={link.name}
+                    className="relative"
+                    onMouseEnter={() => setIsDropdownOpen(true)}
+                    onMouseLeave={() => setIsDropdownOpen(false)}
+                  >
+                    <Link
+                      href={link.href}
+                      className={`flex items-center gap-1 px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
+                        pathname.startsWith("/urunler")
+                          ? "text-brand-700 bg-brand-50"
+                          : "text-gray-700 hover:text-brand-700 hover:bg-brand-50"
+                      }`}
+                    >
+                      {link.name}
+                      <ChevronDown
+                        size={14}
+                        className={`transition-transform duration-200 ${
+                          isDropdownOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </Link>
+                    {isDropdownOpen && (
+                      <div className="absolute top-full left-0 mt-1 w-52 bg-white rounded-2xl shadow-warm-lg border border-brand-100 overflow-hidden animate-fade-in z-50">
+                        {categories.map((category) => (
+                          <Link
+                            key={category.name}
+                            href={category.href}
+                            className="block px-4 py-3 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-700 transition-colors border-b border-gray-50 last:border-0"
+                          >
+                            {category.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    className={`px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
+                      pathname === link.href
+                        ? "text-brand-700 bg-brand-50"
+                        : "text-gray-700 hover:text-brand-700 hover:bg-brand-50"
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                )
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSearchOpen(!searchOpen)}
+                className="btn-icon hidden sm:flex"
+                aria-label="Ara"
+              >
+                <Search size={18} />
+              </button>
+
+              <Link
+                href="/sepet"
+                className="relative btn-icon"
+                aria-label={`Sepet - ${totalItems} ürün`}
+              >
+                <ShoppingCart size={18} />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-brand-600 text-white text-xs font-bold rounded-full flex items-center justify-center animate-fade-in">
+                    {totalItems > 99 ? "99+" : totalItems}
+                  </span>
+                )}
+              </Link>
+
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="btn-icon lg:hidden"
+                aria-label="Menü"
+              >
+                {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
+          </div>
+
+          {searchOpen && (
+            <div className="pb-3 animate-slide-up">
+              <form action="/urunler" method="get" className="flex gap-2">
+                <input
+                  type="search"
+                  name="ara"
+                  placeholder="Leblebi, kuruyemiş veya hediye kutusu ara..."
+                  className="input-field"
+                  autoFocus
+                />
+                <button type="submit" className="btn-primary px-4">
+                  <Search size={16} />
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
+
+        {isMenuOpen && (
+          <div className="lg:hidden border-t border-gray-100 bg-white animate-slide-up">
+            <div className="container-main py-4 space-y-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={`block px-4 py-3 rounded-xl font-medium transition-all ${
+                    pathname === link.href
+                      ? "text-brand-700 bg-brand-50"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              ))}
+              <div className="pt-2 border-t border-gray-100">
+                <p className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  Kategoriler
+                </p>
+                {categories.map((category) => (
+                  <Link
+                    key={category.name}
+                    href={category.href}
+                    className="block px-6 py-2 text-sm text-gray-600 hover:text-brand-700 transition-colors"
+                  >
+                    {category.name}
+                  </Link>
+                ))}
+              </div>
+              <div className="pt-2">
+                <form action="/urunler" method="get">
+                  <input
+                    type="search"
+                    name="ara"
+                    placeholder="Ürün ara..."
+                    className="input-field"
+                  />
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
+    </>
+  );
+}
