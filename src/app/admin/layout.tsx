@@ -3,7 +3,7 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export const metadata: Metadata = {
   title: {
-    default: "Yönetim Paneli | FK KURUYEMİŞ",
+    default: "Yönetim Paneli | LAZOĞLU KURUYEMİŞ",
     template: "%s | Yönetim Paneli",
   },
   robots: { index: false, follow: false },

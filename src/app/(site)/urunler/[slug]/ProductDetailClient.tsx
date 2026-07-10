@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -30,7 +30,7 @@ export default function ProductDetailClient({
   product: any;
   related: any[];
 }) {
-  const { addItem } = useCartStore();
+  const addItem = useCartStore((state) => state.addItem);
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
@@ -74,10 +74,10 @@ export default function ProductDetailClient({
         body: JSON.stringify(reviewForm),
       });
       if (res.ok) {
-        toast.success("Yorumunuz incelemeye alÄ±ndÄ±, teÅŸekkÃ¼r ederiz!");
+        toast.success("Yorumunuz incelemeye alındı, teşekkür ederiz!");
         setReviewForm({ authorName: "", email: "", rating: 5, comment: "" });
       } else {
-        toast.error("Bir hata oluÅŸtu, lÃ¼tfen tekrar deneyin.");
+        toast.error("Bir hata oluştu, lütfen tekrar deneyin.");
       }
     } finally {
       setSubmittingReview(false);
@@ -89,25 +89,25 @@ export default function ProductDetailClient({
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-100">
         <div className="container-main py-3">
-          <nav className="flex items-center gap-2 text-sm text-gray-500">
-            <Link href="/" className="hover:text-brand-600">Ana Sayfa</Link>
-            <ChevronRight size={14} />
-            <Link href="/urunler" className="hover:text-brand-600">ÃœrÃ¼nler</Link>
-            <ChevronRight size={14} />
+          <nav className="flex items-center gap-2 text-sm text-gray-500 overflow-x-auto scrollbar-hide whitespace-nowrap pb-1">
+            <Link href="/" className="hover:text-brand-600 shrink-0">Ana Sayfa</Link>
+            <ChevronRight size={14} className="shrink-0" />
+            <Link href="/urunler" className="hover:text-brand-600 shrink-0">Ürünler</Link>
+            <ChevronRight size={14} className="shrink-0" />
             <Link
               href={`/urunler?kategori=${product.category.slug}`}
-              className="hover:text-brand-600"
+              className="hover:text-brand-600 shrink-0"
             >
               {product.category.name}
             </Link>
-            <ChevronRight size={14} />
+            <ChevronRight size={14} className="shrink-0" />
             <span className="text-gray-900 font-medium truncate">{product.name}</span>
           </nav>
         </div>
       </div>
 
-      <div className="container-main py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+      <div className="container-main py-6 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 mb-10 sm:mb-16">
           {/* Images */}
           <div>
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-white shadow-product mb-4">
@@ -123,18 +123,18 @@ export default function ProductDetailClient({
                 <div className="absolute top-4 left-4">
                   <span className="badge-natural">
                     <Leaf size={12} />
-                    %100 DoÄŸal
+                    %100 Doğal
                   </span>
                 </div>
               )}
             </div>
             {product.images.length > 1 && (
-              <div className="flex gap-3">
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
                 {product.images.map((img: string, i: number) => (
                   <button
                     key={i}
                     onClick={() => setActiveImage(i)}
-                    className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+                    className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 ${
                       i === activeImage
                         ? "border-brand-500 shadow-warm"
                         : "border-gray-200 hover:border-brand-300"
@@ -156,12 +156,12 @@ export default function ProductDetailClient({
               >
                 {product.category.name}
               </Link>
-              <button className="btn-icon" aria-label="PaylaÅŸ">
+              <button className="btn-icon" aria-label="Paylaş">
                 <Share2 size={16} />
               </button>
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-900 mb-4 font-display">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 font-display">
               {product.name}
             </h1>
 
@@ -182,14 +182,14 @@ export default function ProductDetailClient({
                   ))}
                 </div>
                 <span className="text-sm text-gray-600">
-                  {avgRating.toFixed(1)} ({product.reviews.length} deÄŸerlendirme)
+                  {avgRating.toFixed(1)} ({product.reviews.length} değerlendirme)
                 </span>
               </div>
             )}
 
             {/* Price */}
-            <div className="flex items-end gap-3 mb-6">
-              <span className="text-4xl font-bold text-brand-600">
+            <div className="flex items-end gap-3 mb-6 flex-wrap">
+              <span className="text-3xl sm:text-4xl font-bold text-brand-600">
                 {price.toFixed(2)} ₺
               </span>
               {hasDiscount && (
@@ -199,35 +199,7 @@ export default function ProductDetailClient({
               )}
             </div>
 
-            {/* Variant Selection */}
-            {product.variants.length > 0 && (
-              <div className="mb-6">
-                <p className="font-semibold text-gray-700 mb-3">
-                  SeÃ§enek SeÃ§in:
-                  <span className="text-brand-600 ml-2">{selectedVariant?.weight}</span>
-                </p>
-                <div className="flex gap-3 flex-wrap">
-                  {product.variants.map((v: any) => (
-                    <button
-                      key={v.id}
-                      onClick={() => setSelectedVariant(v)}
-                      className={`px-4 py-2 rounded-xl border-2 font-semibold text-sm transition-all ${
-                        selectedVariant?.id === v.id
-                          ? "border-brand-500 bg-brand-50 text-brand-700"
-                          : "border-gray-200 text-gray-700 hover:border-brand-300"
-                      } ${v.stock === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
-                      disabled={v.stock === 0}
-                    >
-                      {v.weight}
-                      <span className="ml-2 text-brand-600">{v.price.toFixed(2)} ₺</span>
-                      {v.stock === 0 && (
-                        <span className="ml-1 text-red-400 text-xs">(TÃ¼kendi)</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Varyant (Seçenek Seçin) bölümü kullanıcının isteği üzerine kaldırılmıştır */}
 
             {/* Quantity */}
             <div className="flex items-center gap-4 mb-6">
@@ -250,7 +222,7 @@ export default function ProductDetailClient({
             </div>
 
             {/* Add to Cart */}
-            <div className="flex gap-3 mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
               <button
                 onClick={handleAddToCart}
                 className="flex-1 btn-primary text-base py-4 rounded-2xl"
@@ -258,28 +230,28 @@ export default function ProductDetailClient({
                 <ShoppingCart size={20} />
                 Sepete Ekle
               </button>
-              <button className="btn-icon w-14 h-14 rounded-2xl" aria-label="Favorilere ekle">
+              <button className="btn-icon w-full sm:w-14 h-12 sm:h-14 rounded-2xl" aria-label="Favorilere ekle">
                 <Heart size={20} />
               </button>
             </div>
 
             {/* Trust signals */}
-            <div className="grid grid-cols-2 gap-3 p-4 bg-brand-50 rounded-2xl border border-brand-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-brand-50 rounded-2xl border border-brand-100">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Truck size={16} className="text-brand-500" />
-                <span>AÄŸÄ±rlÄ±ÄŸa gÃ¶re uygun kargo</span>
+                <span>Ağırlığa göre uygun kargo</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Shield size={16} className="text-brand-500" />
-                <span>GÃ¼venli Ã¶deme</span>
+                <span>Güvenli ödeme</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Clock size={16} className="text-brand-500" />
-                <span>1-3 iÅŸ gÃ¼nÃ¼ teslimat</span>
+                <span>1-3 iş günü teslimat</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Shield size={16} className="text-brand-500" />
-                <span>{product.isNatural ? "%100 doÄŸal Ã¼rÃ¼n" : "Premium ambalaj"}</span>
+                <span>{product.isNatural ? "%100 doğal ürün" : "Premium ambalaj"}</span>
               </div>
             </div>
 
@@ -289,7 +261,7 @@ export default function ProductDetailClient({
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <MapPin size={14} className="text-brand-500" />
                   <span>
-                    <strong>MenÅŸei:</strong> {product.origin}
+                    <strong>Menşei:</strong> {product.origin}
                   </span>
                 </div>
               )}
@@ -297,7 +269,7 @@ export default function ProductDetailClient({
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Factory size={14} className="text-brand-500" />
                   <span>
-                    <strong>Ãœretim:</strong> {product.production}
+                    <strong>Üretim:</strong> {product.production}
                   </span>
                 </div>
               )}
@@ -314,9 +286,9 @@ export default function ProductDetailClient({
         </div>
 
         {/* Description & Reviews Tabs */}
-        <div className="card p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4 font-display">
-            ÃœrÃ¼n AÃ§Ä±klamasÄ±
+        <div className="card p-4 sm:p-6 mb-8">
+          <h2 className="mb-4 text-xl font-bold text-gray-900">
+            Ürün Açıklaması
           </h2>
           <p className="text-gray-600 leading-relaxed whitespace-pre-line">
             {product.description}
@@ -324,9 +296,9 @@ export default function ProductDetailClient({
         </div>
 
         {/* Reviews */}
-        <div className="card p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6 font-display">
-            DeÄŸerlendirmeler ({product.reviews.length})
+        <div className="card p-4 sm:p-6 mb-8">
+          <h2 className="mb-6 text-xl font-bold text-gray-900">
+            Değerlendirmeler ({product.reviews.length})
           </h2>
 
           {product.reviews.length > 0 ? (
@@ -336,7 +308,7 @@ export default function ProductDetailClient({
                   key={review.id}
                   className="p-4 bg-gray-50 rounded-xl border border-gray-100"
                 >
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-start sm:items-center justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-brand-700 font-bold text-sm">
                         {review.authorName[0].toUpperCase()}
@@ -368,17 +340,17 @@ export default function ProductDetailClient({
             </div>
           ) : (
             <p className="text-gray-400 mb-8 italic">
-              HenÃ¼z deÄŸerlendirme yapÄ±lmamÄ±ÅŸ. Ä°lk deÄŸerlendirmeyi siz yapÄ±n!
+              Henüz değerlendirme yapılmamış. İlk değerlendirmeyi siz yapın!
             </p>
           )}
 
           {/* Review Form */}
           <div className="border-t border-gray-100 pt-6">
-            <h3 className="font-bold text-gray-900 mb-4">DeÄŸerlendirme Yaz</h3>
+            <h3 className="mb-4 font-bold text-gray-900">Değerlendirme Yaz</h3>
             <form onSubmit={handleReviewSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="input-label">AdÄ±nÄ±z *</label>
+                  <label className="input-label">Adınız *</label>
                   <input
                     type="text"
                     required
@@ -387,7 +359,7 @@ export default function ProductDetailClient({
                       setReviewForm({ ...reviewForm, authorName: e.target.value })
                     }
                     className="input-field"
-                    placeholder="AdÄ±nÄ±zÄ± girin"
+                    placeholder="Adınızı girin"
                   />
                 </div>
                 <div>
@@ -434,7 +406,7 @@ export default function ProductDetailClient({
                     setReviewForm({ ...reviewForm, comment: e.target.value })
                   }
                   className="input-field h-28 resize-none"
-                  placeholder="ÃœrÃ¼n hakkÄ±ndaki dÃ¼ÅŸÃ¼ncelerinizi paylaÅŸÄ±n..."
+                  placeholder="Ürün hakkındaki düşüncelerinizi paylaşın..."
                 />
               </div>
               <button
@@ -442,7 +414,7 @@ export default function ProductDetailClient({
                 disabled={submittingReview}
                 className="btn-primary"
               >
-                {submittingReview ? "GÃ¶nderiliyor..." : "DeÄŸerlendirme GÃ¶nder"}
+                {submittingReview ? "Gönderiliyor..." : "Değerlendirme Gönder"}
               </button>
             </form>
           </div>
@@ -451,8 +423,8 @@ export default function ProductDetailClient({
         {/* Related Products */}
         {related.length > 0 && (
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 font-display">
-              Benzer ÃœrÃ¼nler
+            <h2 className="mb-6 text-2xl font-bold text-gray-900">
+              Benzer Ürünler
             </h2>
             <div className="product-grid">
               {related.map((p) => (

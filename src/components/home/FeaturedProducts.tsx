@@ -51,11 +51,11 @@ export default function FeaturedProducts({ products }: { products: any[] }) {
   const displayProducts = products.length > 0 ? products : DEMO_PRODUCTS;
 
   return (
-    <section className="py-20 bg-white">
+    <section className="bg-white py-10 sm:py-20">
       <div className="container-main">
-        <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
+        <div className="mb-7 flex flex-col items-center gap-4 text-center sm:mb-12 sm:flex-row sm:items-end sm:justify-between sm:text-left">
           <div>
-            <div className="flex items-center gap-2 mb-3">
+            <div className="mb-3 flex items-center justify-center gap-2 sm:justify-start">
               <Sparkles size={18} className="text-brand-500" />
               <span className="text-brand-600 font-semibold text-sm uppercase tracking-wider">
                 Öne Çıkanlar
@@ -66,7 +66,7 @@ export default function FeaturedProducts({ products }: { products: any[] }) {
               Editörlerimiz tarafından özenle seçilmiş ürünler
             </p>
           </div>
-          <Link href="/urunler" className="btn-secondary gap-2">
+          <Link href="/urunler" className="btn-secondary w-full max-w-xs gap-2 sm:w-auto">
             Tümünü Gör <ArrowRight size={16} />
           </Link>
         </div>

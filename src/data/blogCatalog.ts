@@ -24,12 +24,12 @@ export const blogPosts: CatalogBlogPost[] = [
     excerpt:
       "Şık görünen, taşımaya uygun ve içeriğiyle akılda kalan bir Çorum hediyesi hazırlamak için kutu formu, bölme düzeni ve ürün uyumu önemlidir.",
     coverImage: "/images/products/corum-hatirasi-karisik-kutu-siyah.png",
-    authorName: "FK KURUYEMİŞ",
+    authorName: "LAZOĞLU KURUYEMİŞ",
     tags: ["Çorum Hatırası", "Hediyelik Kutu", "Leblebi"],
     isPublished: true,
     publishedAt,
     updatedAt: publishedAt,
-    metaTitle: "Çorum Hatırası Hediyelik Kutu Seçimi | FK KURUYEMİŞ",
+    metaTitle: "Çorum Hatırası Hediyelik Kutu Seçimi | LAZOĞLU KURUYEMİŞ",
     metaDescription:
       "Çorum Hatırası hediyelik kutu seçerken bölme düzeni, ambalaj kalitesi ve leblebi çeşitlerini nasıl değerlendireceğinizi okuyun.",
     content: `Çorum'dan götürülecek bir hediyenin ilk etkisi ambalajla başlar. Çorum Hatırası kutular bu yüzden sadece leblebi taşıyan bir paket değil, aynı zamanda şehrin hatırasını taşıyan özel bir sunumdur.
@@ -57,12 +57,12 @@ Kendi dolumunu yapmak isteyen mağazalar, oteller ve kurumsal işletmeler için 
     excerpt:
       "Sade ve çikolatalı LüksLeb kurabiyeleri, leblebiyi modern ambalaj ve kahve yanı sunumuyla yeniden yorumlar.",
     coverImage: "/images/products/luksleb-sade-kurabiye.png",
-    authorName: "FK KURUYEMİŞ",
+    authorName: "LAZOĞLU KURUYEMİŞ",
     tags: ["LüksLeb", "Leblebi Kurabiyesi", "Çorum"],
     isPublished: true,
     publishedAt: new Date("2026-07-04T09:00:00.000Z"),
     updatedAt: new Date("2026-07-04T09:00:00.000Z"),
-    metaTitle: "LüksLeb Leblebi Kurabiyesi | FK KURUYEMİŞ",
+    metaTitle: "LüksLeb Leblebi Kurabiyesi | LAZOĞLU KURUYEMİŞ",
     metaDescription:
       "LüksLeb sade ve çikolatalı leblebi kurabiyelerinin sunum, lezzet ve hediye avantajlarını keşfedin.",
     content: `Leblebi denince akla genellikle klasik kavrulmuş lezzet gelir. LüksLeb leblebi kurabiyesi ise bu tanıdık lezzeti daha modern, daha zarif ve kolay hediye edilebilir bir forma taşır.
@@ -90,12 +90,12 @@ LüksLeb ürünleri, Çorum leblebisinin bilinirliğini klasik çerez formunun d
     excerpt:
       "Müşteri, bayi ve çalışan hediyelerinde Çorum temalı kutular hem yerel kimlik hem de premium sunum sağlar.",
     coverImage: "/images/products/corum-hatirasi-gold-draje-kutu.png",
-    authorName: "FK KURUYEMİŞ",
+    authorName: "LAZOĞLU KURUYEMİŞ",
     tags: ["Kurumsal Hediye", "Çorum Hatırası", "Draje"],
     isPublished: true,
     publishedAt: new Date("2026-07-03T09:00:00.000Z"),
     updatedAt: new Date("2026-07-03T09:00:00.000Z"),
-    metaTitle: "Kurumsal Hediyelik Çorum Hatırası Kutular | FK KURUYEMİŞ",
+    metaTitle: "Kurumsal Hediyelik Çorum Hatırası Kutular | LAZOĞLU KURUYEMİŞ",
     metaDescription:
       "Kurumsal hediyelik seçiminde Çorum Hatırası kutuların ambalaj, içerik ve sunum avantajlarını inceleyin.",
     content: `Kurumsal hediye seçerken ürünün lezzeti kadar ambalajın verdiği mesaj da önemlidir. Çorum Hatırası kutular, yerel kimliği güçlü bir hediye formuna dönüştürür.
@@ -123,12 +123,12 @@ Boş ambalaj seçenekleri ve bölmeli kutular, kurumsal siparişlerde standart h
     excerpt:
       "Boş bölmeli kutular, kendi leblebi ve draje karışımını hazırlamak isteyen işletmeler için esnek ve şık bir çözüm sunar.",
     coverImage: "/images/products/corum-hatirasi-bos-6li-yatay.png",
-    authorName: "FK KURUYEMİŞ",
+    authorName: "LAZOĞLU KURUYEMİŞ",
     tags: ["Boş Ambalaj", "Hediye Kutusu", "Mağaza Sunumu"],
     isPublished: true,
     publishedAt: new Date("2026-07-02T09:00:00.000Z"),
     updatedAt: new Date("2026-07-02T09:00:00.000Z"),
-    metaTitle: "Boş Çorum Hatırası Hediye Kutuları | FK KURUYEMİŞ",
+    metaTitle: "Boş Çorum Hatırası Hediye Kutuları | LAZOĞLU KURUYEMİŞ",
     metaDescription:
       "Boş Çorum Hatırası kutularla mağaza, otel ve kurumsal hediyelik için nasıl karışım hazırlanabileceğini okuyun.",
     content: `Boş hediye kutuları, hazır dolum almak istemeyen ama Çorum Hatırası tasarımından vazgeçmek istemeyen işletmeler için iyi bir alternatiftir.
@@ -156,12 +156,12 @@ Siyah-gold pencereli kutular dolu olmasa bile raf sunumunda premium bir izlenim 
     excerpt:
       "Çorum Saat Kulesi temalı hediyelik biblo, leblebi kutularının yanında şehir hatırası etkisini güçlendiren özel bir üründür.",
     coverImage: "/images/products/saat-kulesi-hediyelik.png",
-    authorName: "FK KURUYEMİŞ",
+    authorName: "LAZOĞLU KURUYEMİŞ",
     tags: ["Saat Kulesi", "Hatıra Ürünü", "Çorum"],
     isPublished: true,
     publishedAt: new Date("2026-07-01T09:00:00.000Z"),
     updatedAt: new Date("2026-07-01T09:00:00.000Z"),
-    metaTitle: "Çorum Saat Kulesi Hediyelik Biblo | FK KURUYEMİŞ",
+    metaTitle: "Çorum Saat Kulesi Hediyelik Biblo | LAZOĞLU KURUYEMİŞ",
     metaDescription:
       "Çorum Saat Kulesi hediyelik biblonun mağaza rafı, şehir hatırası ve hediye sunumu içindeki yerini keşfedin.",
     content: `Çorum Saat Kulesi, şehrin en tanınan simgelerinden biridir. Bu simgeyi dekoratif bir hediyelik ürüne dönüştürmek, Çorum'dan götürülen hediyeyi daha kalıcı hale getirir.

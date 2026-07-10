@@ -508,7 +508,7 @@ export const catalogProducts: CatalogProduct[] = rawProducts.map((product) => {
     category,
     variants,
     reviews: makeReviews(product.slug),
-    metaTitle: `${product.name} | FK KURUYEMİŞ`,
+    metaTitle: `${product.name} | LAZOĞLU KURUYEMİŞ`,
     metaDescription: product.shortDesc,
     isActive: true,
     createdAt: now,

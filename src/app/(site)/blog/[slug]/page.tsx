@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return { title: "Yazı Bulunamadı" };
 
   return {
-    title: post.metaTitle || `${post.title} | FK KURUYEMİŞ Blog`,
+    title: post.metaTitle || `${post.title} | LAZOĞLU KURUYEMİŞ Blog`,
     description: post.metaDescription || post.excerpt,
     openGraph: {
       title: post.metaTitle || post.title,
@@ -57,7 +57,7 @@ export default async function BlogPostPage({ params }: Props) {
     author: { "@type": "Organization", name: post.authorName },
     publisher: {
       "@type": "Organization",
-      name: "FK KURUYEMİŞ",
+      name: "LAZOĞLU KURUYEMİŞ",
       logo: { "@type": "ImageObject", url: "/images/logo_circular.png" },
     },
     datePublished: post.publishedAt.toISOString(),

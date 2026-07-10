@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { unauthorized, notFound, handleError } from "@/lib/apiErrors";
+import {
+  notifySubscribersAboutDiscount,
+  shouldSendDiscountNotification,
+} from "@/lib/discountNotifications";
 
 interface Params {
   params: { id: string };
@@ -54,6 +58,17 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       ? variants.reduce((sum, variant) => sum + variant.stock, 0)
       : Number(body.totalStock ?? 0);
 
+    const previousProduct = await prisma.product.findUnique({
+      where: { id: params.id },
+      select: {
+        name: true,
+        slug: true,
+        basePrice: true,
+        discountPrice: true,
+        isActive: true,
+      },
+    });
+
     const productData = {
       name: body.name,
       slug: body.slug,
@@ -105,6 +120,24 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         },
       });
     });
+
+    if (
+      shouldSendDiscountNotification(previousProduct, {
+        name: product.name,
+        slug: product.slug,
+        basePrice: product.basePrice,
+        discountPrice: product.discountPrice,
+        isActive: product.isActive,
+      })
+    ) {
+      notifySubscribersAboutDiscount({
+        name: product.name,
+        slug: product.slug,
+        basePrice: product.basePrice,
+        discountPrice: product.discountPrice,
+        isActive: product.isActive,
+      }).catch(console.error);
+    }
 
     return NextResponse.json(product);
   } catch (error) {

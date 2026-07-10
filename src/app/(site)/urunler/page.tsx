@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Tüm Ürünler | Çorum Hatırası, LüksLeb ve Hediyelik Kutular",
   description:
-    "FK KURUYEMİŞ ürün kataloğu. Çorum Hatırası kutular, LüksLeb kurabiyeleri, karışık hediyelikler, boş ambalajlar ve hatıra ürünleri.",
+    "LAZOĞLU KURUYEMİŞ ürün kataloğu. Çorum Hatırası kutular, LüksLeb kurabiyeleri, karışık hediyelikler, boş ambalajlar ve hatıra ürünleri.",
 };
 
 interface SearchParams {

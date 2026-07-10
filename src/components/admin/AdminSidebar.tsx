@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   BookOpen,
   FolderOpen,
+  ImageIcon,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -23,6 +24,7 @@ const navItems = [
   { label: "Siparişler", href: "/admin/siparisler", icon: ShoppingBag },
   { label: "Ürünler", href: "/admin/urunler", icon: Package },
   { label: "Kategoriler", href: "/admin/kategoriler", icon: FolderOpen },
+  { label: "Görsel Optimize", href: "/admin/gorsel-optimize", icon: ImageIcon },
   { label: "Blog", href: "/admin/blog", icon: BookOpen },
   { label: "Kuponlar", href: "/admin/kuponlar", icon: Tag },
   { label: "E-Bülten", href: "/admin/ebulten", icon: Users },
@@ -39,19 +41,29 @@ function SidebarContent({
 }) {
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-gray-800 p-5">
-        <Link href="/admin" className="flex items-center gap-3">
-          <div className="relative h-9 w-9">
+      <div className="border-b border-gray-800 px-5 py-5">
+        <Link
+          href="/admin"
+          onClick={onLinkClick}
+          className="flex min-h-[58px] items-center gap-3 rounded-xl px-1 transition-colors hover:bg-white/[0.03]"
+        >
+          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_10px_25px_rgba(0,0,0,0.25)]">
             <Image
               src="/images/logo_circular.png"
-              alt="FK KURUYEMİŞ"
+              alt="LAZOĞLU KURUYEMİŞ"
               fill
-              className="object-contain brightness-0 invert"
+              className="object-contain p-[3px]"
+              sizes="48px"
+              priority
             />
           </div>
-          <div>
-            <p className="text-sm font-bold text-white">FK KURUYEMİŞ</p>
-            <p className="text-xs text-gray-400">Yönetim Paneli</p>
+          <div className="min-w-0">
+            <p className="truncate text-[15px] font-bold leading-tight text-white">
+              LAZOĞLU KURUYEMİŞ
+            </p>
+            <p className="mt-1 text-xs leading-none text-brand-300">
+              Yönetim Paneli
+            </p>
           </div>
         </Link>
       </div>
@@ -122,17 +134,21 @@ export default function AdminSidebar() {
         />
       </aside>
 
-      <div className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between bg-gray-900 px-4 py-3 lg:hidden">
-        <Link href="/admin" className="flex items-center gap-2">
-          <div className="relative h-8 w-8">
+      <div className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between bg-gray-900 px-4 py-3 shadow-lg lg:hidden">
+        <Link href="/admin" className="flex min-w-0 items-center gap-2">
+          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_8px_18px_rgba(0,0,0,0.22)]">
             <Image
               src="/images/logo_circular.png"
-              alt="FK KURUYEMİŞ"
+              alt="LAZOĞLU KURUYEMİŞ"
               fill
-              className="object-contain brightness-0 invert"
+              className="object-contain p-[3px]"
+              sizes="40px"
+              priority
             />
           </div>
-          <span className="text-sm font-bold text-white">Yönetim</span>
+          <span className="truncate text-sm font-bold text-white">
+            LAZOĞLU KURUYEMİŞ
+          </span>
         </Link>
         <button
           type="button"

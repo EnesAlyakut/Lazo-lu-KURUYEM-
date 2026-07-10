@@ -14,6 +14,7 @@ import {
   Info,
   Star,
   Loader2,
+  Wand2,
 } from "lucide-react";
 
 interface Category {
@@ -352,9 +353,18 @@ export default function YeniUrunPage() {
 
         {/* Görseller */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center gap-2 mb-5">
-            <ImageIcon size={18} className="text-brand-500" />
-            <h2 className="font-semibold text-gray-900">Ürün Görselleri</h2>
+          <div className="flex flex-col gap-3 mb-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <ImageIcon size={18} className="text-brand-500" />
+              <h2 className="font-semibold text-gray-900">Ürün Görselleri</h2>
+            </div>
+            <Link
+              href="/admin/gorsel-optimize"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-brand-200 bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-100"
+            >
+              <Wand2 size={15} />
+              Görsel Optimize
+            </Link>
           </div>
 
           {/* Gizli dosya input */}

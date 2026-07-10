@@ -4,6 +4,8 @@ const nextConfig = {
 
   // Security headers
   async headers() {
+    const isProduction = process.env.NODE_ENV === "production";
+
     return [
       {
         source: "/(.*)",
@@ -23,13 +25,23 @@ const nextConfig = {
       {
         source: "/_next/static/(.*)",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          {
+            key: "Cache-Control",
+            value: isProduction
+              ? "public, max-age=31536000, immutable"
+              : "no-store, max-age=0, must-revalidate",
+          },
         ],
       },
       {
         source: "/images/(.*)",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=3600" },
+          {
+            key: "Cache-Control",
+            value: isProduction
+              ? "public, max-age=86400, stale-while-revalidate=3600"
+              : "no-store, max-age=0, must-revalidate",
+          },
         ],
       },
     ];

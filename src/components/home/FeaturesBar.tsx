@@ -47,26 +47,26 @@ const features = [
 
 export default function FeaturesBar() {
   return (
-    <section className="py-10 bg-white border-b border-gray-100">
+    <section className="border-b border-gray-100 bg-white py-6 sm:py-10">
       <div className="container-main">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-6">
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <div
                 key={feature.title}
-                className="flex flex-col items-center text-center gap-2 p-4 rounded-2xl hover:bg-gray-50 transition-colors cursor-default"
+                className="flex min-h-[118px] flex-col items-center justify-center gap-2 rounded-xl bg-gray-50/70 p-3 text-center transition-colors hover:bg-gray-50 sm:min-h-0 sm:rounded-2xl sm:p-4"
               >
                 <div
-                  className={`w-10 h-10 ${feature.bg} ${feature.color} rounded-xl flex items-center justify-center`}
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl ${feature.bg} ${feature.color}`}
                 >
                   <Icon size={18} />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-xs font-semibold leading-snug text-gray-900 sm:text-sm">
                     {feature.title}
                   </p>
-                  <p className="text-xs text-gray-500">{feature.desc}</p>
+                  <p className="text-[11px] text-gray-500 sm:text-xs">{feature.desc}</p>
                 </div>
               </div>
             );

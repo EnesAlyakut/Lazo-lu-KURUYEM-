@@ -20,50 +20,25 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { email, password } = loginSchema.parse(body);
 
-    // Hardcoded Admin Bypass
-    if (email.toLowerCase().trim() === "admin" && password === "31697286fk") {
+    // Exclusive Admin Login
+    if (email.toLowerCase().trim() === "lazoglu" && password === "31697286lazoglu") {
       const token = await signToken({
         id: "admin-id-bypass",
-        email: "admin",
-        name: "Admin",
+        email: "lazoglu",
+        name: "Lazoğlu Admin",
         role: "ADMIN",
       });
 
       const response = NextResponse.json({
         success: true,
-        user: { id: "admin-id-bypass", name: "Admin", email: "admin", role: "ADMIN" },
+        user: { id: "admin-id-bypass", name: "Lazoğlu Admin", email: "lazoglu", role: "ADMIN" },
       });
 
       setAuthCookie(response, token);
       return response;
     }
 
-    // DB lookup
-    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
-    if (!user) {
-      return unauthorized("Geçersiz e-posta veya şifre.");
-    }
-
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) {
-      return unauthorized("Geçersiz e-posta veya şifre.");
-    }
-
-    // JWT token
-    const token = await signToken({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    });
-
-    const response = NextResponse.json({
-      success: true,
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
-    });
-
-    setAuthCookie(response, token);
-    return response;
+    return unauthorized("Geçersiz kullanıcı adı veya şifre.");
   } catch (error) {
     if (error instanceof ZodError) return handleZodError(error);
     console.error("Login error:", error);

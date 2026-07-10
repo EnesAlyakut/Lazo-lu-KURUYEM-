@@ -53,25 +53,25 @@ const reasons = [
 
 export default function WhyUs() {
   return (
-    <section className="py-20 bg-white">
+    <section className="bg-white py-10 sm:py-20">
       <div className="container-main">
-        <div className="text-center mb-14">
-          <h2 className="section-title">Neden FK KURUYEMİŞ?</h2>
+        <div className="mb-7 text-center sm:mb-14">
+          <h2 className="section-title">Neden LAZOĞLU KURUYEMİŞ?</h2>
           <p className="section-subtitle mx-auto">
             30 yıllık tecrübe ve binlerce mutlu müşterinin güveni
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {reasons.map((reason) => {
             const Icon = reason.icon;
             return (
               <div
                 key={reason.title}
-                className={`p-6 rounded-2xl border ${reason.border} ${reason.bg} hover:shadow-warm transition-all duration-300 hover:-translate-y-1`}
+                className={`rounded-xl border p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-warm sm:rounded-2xl sm:p-6 sm:text-left ${reason.border} ${reason.bg}`}
               >
                 <div
-                  className={`w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-4 shadow-sm`}
+                  className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-sm sm:mx-0"
                 >
                   <Icon size={22} className={reason.color} />
                 </div>

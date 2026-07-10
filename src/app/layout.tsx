@@ -19,10 +19,10 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://fkkuruyemis.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://lazoglukuruyemis.com"),
   title: {
-    default: "FK KURUYEMİŞ | Çorum Hatırası, LüksLeb ve Hediyelik Leblebi",
-    template: "%s | FK KURUYEMİŞ",
+    default: "LAZOĞLU KURUYEMİŞ | Çorum Hatırası, LüksLeb ve Hediyelik Leblebi",
+    template: "%s | LAZOĞLU KURUYEMİŞ",
   },
   description:
     "Çorum Hatırası hediyelik kutuları, LüksLeb leblebi kurabiyeleri ve özel Çorum leblebisi sunumları. Kapınıza kadar hızlı teslimat.",
@@ -40,9 +40,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "tr_TR",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "https://fkkuruyemis.com",
-    siteName: "FK KURUYEMİŞ",
-    title: "FK KURUYEMİŞ | Çorum Hatırası, LüksLeb ve Hediyelik Leblebi",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://lazoglukuruyemis.com",
+    siteName: "LAZOĞLU KURUYEMİŞ",
+    title: "LAZOĞLU KURUYEMİŞ | Çorum Hatırası, LüksLeb ve Hediyelik Leblebi",
     description:
       "Çorum Hatırası hediyelikleri, LüksLeb ürünleri ve özel leblebi sunumları.",
     images: [
@@ -50,13 +50,13 @@ export const metadata: Metadata = {
         url: "/images/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "FK KURUYEMİŞ",
+        alt: "LAZOĞLU KURUYEMİŞ",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "FK KURUYEMİŞ",
+    title: "LAZOĞLU KURUYEMİŞ",
     description: "Çorum Hatırası hediyelikleri ve LüksLeb ürünleri",
   },
   robots: {
@@ -74,7 +74,11 @@ export const metadata: Metadata = {
     google: "your-google-verification-code",
   },
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://fkkuruyemis.com",
+    canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://lazoglukuruyemis.com",
+  },
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
   },
 };
 
@@ -84,8 +88,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className={`${inter.variable} ${playfair.variable}`}>
-      <body className="font-sans antialiased">
+    <html lang="tr" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning>
+      <body className="font-sans antialiased" suppressHydrationWarning>
         <CartProvider>
           {children}
           <Toaster
@@ -93,9 +97,9 @@ export default function RootLayout({
             toastOptions={{
               duration: 3000,
               style: {
-                background: "#3d1708",
+                background: "#312119",
                 color: "white",
-                borderLeft: "4px solid #d4841a",
+                borderLeft: "4px solid #a38c7c",
                 borderRadius: "12px",
                 padding: "12px 16px",
                 fontSize: "14px",
@@ -103,7 +107,7 @@ export default function RootLayout({
               },
               success: {
                 iconTheme: {
-                  primary: "#d4841a",
+                  primary: "#a38c7c",
                   secondary: "white",
                 },
               },
@@ -114,4 +118,3 @@ export default function RootLayout({
     </html>
   );
 }
-

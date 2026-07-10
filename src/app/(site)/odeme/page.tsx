@@ -6,24 +6,29 @@ import { useRouter } from "next/navigation";
 import { CreditCard, Lock, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 import { calculateShippingCost, calculateTotalWeight } from "@/lib/shipping";
+import { validateOrderContactFields } from "@/lib/orderValidation";
+import { normalizeAndValidateCard } from "@/lib/paymentValidation";
 
 export const dynamic = "force-dynamic";
+
+const CHECKOUT_COUPON_KEY = "fk-checkout-coupon";
 
 const paymentMethods = [
   {
     id: "CREDIT_CARD",
     label: "Kredi Kartı",
-    desc: "Visa, Mastercard (iyzico güvenceli)",
+    desc: "Visa, Mastercard ve TROY kartları desteklenir",
     icon: CreditCard,
   },
 ];
 
 export default function OdemePage() {
-  const { items, getTotal, clearCart } = useCartStore();
+  const { items, getTotal, clearCart, hasHydrated } = useCartStore();
   const router = useRouter();
   const paymentMethod = "CREDIT_CARD";
   const [submitting, setSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
   const [form, setForm] = useState({
     customerName: "",
     customerEmail: "",
@@ -42,11 +47,39 @@ export default function OdemePage() {
   const subtotal = getTotal();
   const totalWeight = items.length > 0 ? calculateTotalWeight(items) : 0;
   const shipping = items.length > 0 ? calculateShippingCost(totalWeight) : 0;
-  const total = subtotal + shipping;
+  const discount = appliedCoupon?.discountAmount || 0;
+  const total = subtotal - discount + shipping;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) return;
+
+    const contactValidation = validateOrderContactFields({
+      customerName: form.customerName,
+      customerEmail: form.customerEmail,
+      customerPhone: form.customerPhone,
+      city: form.city,
+      district: form.district,
+      address: form.address,
+      postalCode: form.postalCode,
+    });
+
+    if (!contactValidation.ok) {
+      toast.error(contactValidation.message);
+      return;
+    }
+
+    const cardValidation = normalizeAndValidateCard({
+      cardHolder: form.cardHolder,
+      cardNumber: form.cardNumber,
+      cardExpiry: form.cardExpiry,
+      cardCvv: form.cardCvv,
+    });
+
+    if (!cardValidation.ok) {
+      toast.error(cardValidation.message);
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -55,20 +88,31 @@ export default function OdemePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          customerName: contactValidation.normalized.customerName,
+          customerEmail: contactValidation.normalized.customerEmail,
+          customerPhone: contactValidation.normalized.customerPhone,
+          city: contactValidation.normalized.city,
+          district: contactValidation.normalized.district,
+          address: contactValidation.normalized.address,
+          postalCode: contactValidation.normalized.postalCode,
           paymentMethod,
-          items: items.map((i) => ({
-            productId: i.productId,
-            variantId: i.variantId,
-            productName: i.productName,
-            variant: i.variant,
-            price: i.price,
-            quantity: i.quantity,
-            total: i.price * i.quantity,
+          cardHolder: cardValidation.card.holderName,
+          cardNumber: cardValidation.card.number,
+          cardCvv: cardValidation.card.cvc,
+          items: items.map((item) => ({
+            productId: item.productId,
+            variantId: item.variantId,
+            productName: item.productName,
+            variant: item.variant,
+            price: item.price,
+            quantity: item.quantity,
+            total: item.price * item.quantity,
           })),
           subtotal,
           shippingCost: shipping,
-          discount: 0,
+          discount,
           total,
+          couponCode: appliedCoupon?.code || undefined,
         }),
       });
 
@@ -76,6 +120,7 @@ export default function OdemePage() {
 
       if (res.ok) {
         clearCart();
+        localStorage.removeItem(CHECKOUT_COUPON_KEY);
         toast.success("Siparişiniz alındı! Teşekkür ederiz.");
         router.push(`/siparis-basarili?no=${data.orderNumber}`);
       } else {
@@ -88,52 +133,101 @@ export default function OdemePage() {
     }
   };
 
-  // Redirect to cart if empty (use effect to avoid SSR issues)
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (mounted && items.length === 0) {
+    if (!mounted || !hasHydrated || items.length === 0) return;
+
+    const rawCoupon = localStorage.getItem(CHECKOUT_COUPON_KEY);
+    if (!rawCoupon) {
+      setAppliedCoupon(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function validateStoredCoupon() {
+      try {
+        const parsed = JSON.parse(rawCoupon || "{}");
+        const code = String(parsed.code || "").trim().toUpperCase();
+
+        if (!code) {
+          localStorage.removeItem(CHECKOUT_COUPON_KEY);
+          setAppliedCoupon(null);
+          return;
+        }
+
+        const response = await fetch("/api/kupon/dogrula", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code, cartTotal: subtotal }),
+        });
+        const data = await response.json();
+
+        if (!cancelled && response.ok && data.success && data.coupon) {
+          setAppliedCoupon({
+            code: data.coupon.code,
+            discountAmount: Number(data.coupon.discountAmount || 0),
+          });
+          return;
+        }
+
+        localStorage.removeItem(CHECKOUT_COUPON_KEY);
+        if (!cancelled) setAppliedCoupon(null);
+      } catch {
+        localStorage.removeItem(CHECKOUT_COUPON_KEY);
+        if (!cancelled) setAppliedCoupon(null);
+      }
+    }
+
+    validateStoredCoupon();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mounted, hasHydrated, items.length, subtotal]);
+
+  useEffect(() => {
+    if (mounted && hasHydrated && items.length === 0) {
       router.push("/sepet");
     }
-  }, [items.length, router, mounted]);
+  }, [items.length, router, mounted, hasHydrated]);
 
-  if (!mounted) {
+  if (!mounted || !hasHydrated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin"></div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-200 border-t-brand-600" />
       </div>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <p className="text-gray-400">Sepetiniz boş, yönlendiriliyorsunuz...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-5 sm:py-8">
       <div className="container-main">
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-8">
+        <div className="scrollbar-hide mb-6 flex items-center gap-2 overflow-x-auto pb-1 text-sm text-gray-500 sm:mb-8">
           <span>Sepet</span>
           <ChevronRight size={14} />
-          <span className="text-brand-600 font-semibold">Ödeme</span>
+          <span className="font-semibold text-brand-600">Ödeme</span>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left - Form */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Customer Info */}
-              <div className="card p-6">
-                <h2 className="font-bold text-gray-900 text-lg mb-5 font-display">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
+            <div className="space-y-6 lg:col-span-2">
+              <div className="card p-4 sm:p-6">
+                <h2 className="mb-5 font-display text-lg font-bold text-gray-900">
                   Kişisel Bilgiler
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <label className="input-label">Ad Soyad *</label>
                     <input
@@ -170,12 +264,11 @@ export default function OdemePage() {
                 </div>
               </div>
 
-              {/* Shipping Address */}
-              <div className="card p-6">
-                <h2 className="font-bold text-gray-900 text-lg mb-5 font-display">
+              <div className="card p-4 sm:p-6">
+                <h2 className="mb-5 font-display text-lg font-bold text-gray-900">
                   Teslimat Adresi
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <label className="input-label">Şehir *</label>
                     <input
@@ -230,9 +323,8 @@ export default function OdemePage() {
                 </div>
               </div>
 
-              {/* Payment Method */}
-              <div className="card p-6">
-                <h2 className="font-bold text-gray-900 text-lg mb-5 font-display">
+              <div className="card p-4 sm:p-6">
+                <h2 className="mb-5 font-display text-lg font-bold text-gray-900">
                   Ödeme Yöntemi
                 </h2>
                 <div className="space-y-3">
@@ -241,7 +333,7 @@ export default function OdemePage() {
                     return (
                       <label
                         key={pm.id}
-                        className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${
+                        className={`flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-3 transition-all sm:gap-4 sm:p-4 ${
                           paymentMethod === pm.id
                             ? "border-brand-500 bg-brand-50"
                             : "border-gray-200 hover:border-brand-300"
@@ -256,7 +348,7 @@ export default function OdemePage() {
                           className="sr-only"
                         />
                         <div
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                          className={`flex h-10 w-10 items-center justify-center rounded-xl ${
                             paymentMethod === pm.id
                               ? "bg-brand-600 text-white"
                               : "bg-gray-100 text-gray-500"
@@ -264,20 +356,18 @@ export default function OdemePage() {
                         >
                           <Icon size={18} />
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <p className="font-semibold text-gray-900">{pm.label}</p>
                           <p className="text-sm text-gray-500">{pm.desc}</p>
                         </div>
                         <div className="ml-auto">
                           <div
-                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                              paymentMethod === pm.id
-                                ? "border-brand-500"
-                                : "border-gray-300"
+                            className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                              paymentMethod === pm.id ? "border-brand-500" : "border-gray-300"
                             }`}
                           >
                             {paymentMethod === pm.id && (
-                              <div className="w-2.5 h-2.5 bg-brand-500 rounded-full" />
+                              <div className="h-2.5 w-2.5 rounded-full bg-brand-500" />
                             )}
                           </div>
                         </div>
@@ -286,105 +376,93 @@ export default function OdemePage() {
                   })}
                 </div>
 
-                {/* Credit Card Form */}
-                {paymentMethod === "CREDIT_CARD" && (
-                  <div className="mt-6 p-4 bg-gray-50 rounded-2xl space-y-4">
+                <div className="mt-6 space-y-4 rounded-2xl bg-gray-50 p-4">
+                  <div>
+                    <label className="input-label">Kart Üzerindeki İsim *</label>
+                    <input
+                      required
+                      type="text"
+                      className="input-field"
+                      value={form.cardHolder}
+                      onChange={(e) => setForm({ ...form, cardHolder: e.target.value })}
+                      placeholder="AD SOYAD"
+                    />
+                  </div>
+                  <div>
+                    <label className="input-label">Kart Numarası *</label>
+                    <input
+                      required
+                      type="text"
+                      maxLength={23}
+                      className="input-field"
+                      value={form.cardNumber}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          cardNumber: e.target.value
+                            .replace(/\D/g, "")
+                            .replace(/(.{4})/g, "$1 ")
+                            .trim(),
+                        })
+                      }
+                      placeholder="XXXX XXXX XXXX XXXX"
+                      inputMode="numeric"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="input-label">Kart Üzerindeki İsim *</label>
+                      <label className="input-label">Son Kullanma *</label>
                       <input
                         required
                         type="text"
+                        maxLength={5}
                         className="input-field"
-                        value={form.cardHolder}
-                        onChange={(e) => setForm({ ...form, cardHolder: e.target.value })}
-                        placeholder="AD SOYAD"
+                        value={form.cardExpiry}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, "").slice(0, 4);
+                          const formatted = value.length > 2 ? `${value.slice(0, 2)}/${value.slice(2)}` : value;
+                          setForm({ ...form, cardExpiry: formatted });
+                        }}
+                        placeholder="AA/YY"
+                        inputMode="numeric"
                       />
                     </div>
                     <div>
-                      <label className="input-label">Kart Numarası *</label>
+                      <label className="input-label">CVV *</label>
                       <input
                         required
                         type="text"
-                        maxLength={19}
+                        maxLength={4}
                         className="input-field"
-                        value={form.cardNumber}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            cardNumber: e.target.value
-                              .replace(/\D/g, "")
-                              .replace(/(.{4})/g, "$1 ")
-                              .trim(),
-                          })
-                        }
-                        placeholder="XXXX XXXX XXXX XXXX"
+                        value={form.cardCvv}
+                        onChange={(e) => setForm({ ...form, cardCvv: e.target.value.replace(/\D/g, "") })}
+                        placeholder="XXX"
+                        inputMode="numeric"
                       />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="input-label">Son Kullanma *</label>
-                        <input
-                          required
-                          type="text"
-                          maxLength={5}
-                          className="input-field"
-                          value={form.cardExpiry}
-                          onChange={(e) =>
-                            setForm({
-                              ...form,
-                              cardExpiry: e.target.value
-                                .replace(/\D/g, "")
-                                .replace(/^(\d{2})/, "$1/"),
-                            })
-                          }
-                          placeholder="AA/YY"
-                        />
-                      </div>
-                      <div>
-                        <label className="input-label">CVV *</label>
-                        <input
-                          required
-                          type="text"
-                          maxLength={4}
-                          className="input-field"
-                          value={form.cardCvv}
-                          onChange={(e) =>
-                            setForm({
-                              ...form,
-                              cardCvv: e.target.value.replace(/\D/g, ""),
-                            })
-                          }
-                          placeholder="XXX"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-500 bg-green-50 p-3 rounded-xl">
-                      <Lock size={14} className="text-green-600" />
-                      Ödeme bilgileriniz iyzico altyapısı ile güvende tutulmaktadır.
                     </div>
                   </div>
-                )}
-
+                  <div className="flex items-center gap-2 rounded-xl bg-green-50 p-3 text-xs text-gray-500">
+                    <Lock size={14} className="text-green-600" />
+                    Ödeme bilgileriniz güvenli altyapı ile korunur.
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Right - Summary */}
             <div>
-              <div className="card p-6 sticky top-24">
-                <h2 className="font-bold text-gray-900 text-lg mb-5 font-display">
+              <div className="card p-4 sm:p-6 lg:sticky lg:top-24">
+                <h2 className="mb-5 font-display text-lg font-bold text-gray-900">
                   Sipariş Özeti
                 </h2>
-                <div className="space-y-3 mb-6">
+                <div className="mb-6 space-y-3">
                   {items.map((item) => (
                     <div key={item.id} className="flex justify-between text-sm">
-                      <span className="text-gray-600 truncate flex-1 mr-2">
+                      <span className="mr-2 flex-1 truncate text-gray-600">
                         {item.productName}
-                        {item.variant && (
-                          <span className="text-gray-400"> ({item.variant})</span>
-                        )}
+                        {item.variant && <span className="text-gray-400"> ({item.variant})</span>}
                         <span className="text-gray-400"> x{item.quantity}</span>
                       </span>
-                      <span className="font-medium shrink-0">
+                      <span className="shrink-0 font-medium">
                         {(item.price * item.quantity).toFixed(2)} ₺
                       </span>
                     </div>
@@ -395,13 +473,17 @@ export default function OdemePage() {
                     <span>Ara Toplam</span>
                     <span>{subtotal.toFixed(2)} ₺</span>
                   </div>
+                  {appliedCoupon && discount > 0 && (
+                    <div className="flex justify-between text-sm text-green-600">
+                      <span>Kupon ({appliedCoupon.code})</span>
+                      <span>-{discount.toFixed(2)} ₺</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>Kargo ({totalWeight > 0 ? `${totalWeight.toFixed(1)} kg` : ""})</span>
-                    <span>
-                      {shipping.toFixed(2)} ₺
-                    </span>
+                    <span>{shipping.toFixed(2)} ₺</span>
                   </div>
-                  <div className="border-t border-gray-100 pt-3 flex justify-between font-bold text-xl">
+                  <div className="flex justify-between border-t border-gray-100 pt-3 text-xl font-bold">
                     <span>Toplam</span>
                     <span className="text-brand-600">{total.toFixed(2)} ₺</span>
                   </div>
@@ -410,13 +492,13 @@ export default function OdemePage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="btn-primary w-full justify-center mt-6 py-4 text-base rounded-2xl"
+                  className="btn-primary mt-6 w-full justify-center rounded-2xl py-4 text-sm leading-tight sm:text-base"
                 >
                   <Lock size={16} />
                   {submitting ? "İşleniyor..." : "Ödeme Al ve Siparişi Tamamla"}
                 </button>
 
-                <p className="text-xs text-gray-400 text-center mt-3">
+                <p className="mt-3 text-center text-xs text-gray-400">
                   Sipariş vererek{" "}
                   <a href="/gizlilik-politikasi" className="underline">
                     gizlilik politikasını

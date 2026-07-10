@@ -12,9 +12,9 @@ export default function WhatsAppButton() {
 
   if (!mounted) return null;
 
-  const number = "905058898828";
+  const number = "905416490883";
   const message = encodeURIComponent(
-    "Merhaba FK KURUYEMİŞ! Ürünleriniz hakkında bilgi almak istiyorum."
+    "Merhaba LAZOĞLU KURUYEMİŞ! Ürünleriniz hakkında bilgi almak istiyorum."
   );
   const url = `https://wa.me/${number}?text=${message}`;
 

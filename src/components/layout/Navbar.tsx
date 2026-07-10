@@ -41,9 +41,13 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [categories, setCategories] = useState<NavCategory[]>(fallbackCategories);
   const pathname = usePathname();
-  const { items } = useCartStore();
+  const items = useCartStore((state) => state.items);
+  const hasHydrated = useCartStore((state) => state.hasHydrated);
 
-  const totalItems = mounted ? items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+  const totalItems =
+    mounted && hasHydrated
+      ? items.reduce((sum, item) => sum + item.quantity, 0)
+      : 0;
 
   useEffect(() => {
     setMounted(true);
@@ -85,10 +89,15 @@ export default function Navbar() {
     setIsDropdownOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    document.body.classList.toggle("mobile-menu-open", isMenuOpen);
+    return () => document.body.classList.remove("mobile-menu-open");
+  }, [isMenuOpen]);
+
   return (
     <>
-      <div className="bg-gradient-to-r from-brand-700 via-brand-600 to-amber-500 text-white text-center py-2 text-sm font-medium">
-        <span className="container-main flex items-center justify-center gap-2 leading-snug">
+      <div className="bg-gradient-to-r from-brand-700 via-brand-600 to-amber-500 py-1.5 text-center text-[11px] font-medium text-white sm:py-2 sm:text-sm">
+        <span className="container-main flex items-center justify-center gap-2 leading-snug px-3">
           <span>
             Çorum leblebisi ve taze kuruyemişlerde özel fırsatlar sizi bekliyor.
           </span>
@@ -103,19 +112,19 @@ export default function Navbar() {
         }`}
       >
         <div className="container-main">
-          <div className="flex items-center justify-between h-16 md:h-20">
-            <Link href="/" className="flex items-center gap-2 shrink-0">
+          <div className="flex h-14 items-center justify-between gap-2 md:h-20">
+            <Link href="/" className="flex min-w-0 shrink items-center gap-2">
               <Image
                 src="/images/logo_circular.png"
-                alt="FK KURUYEMİŞ Logo"
-                width={40}
-                height={40}
-                className="object-contain"
+                alt="LAZOĞLU KURUYEMİŞ Logo"
+                width={52}
+                height={52}
+                className="object-contain shrink-0 rounded-full scale-110"
                 priority
               />
-              <div>
-                <span className="text-lg sm:text-xl font-bold text-brand-700 font-display">
-                  FK KURUYEMİŞ
+              <div className="min-w-0">
+                <span className="block max-w-[9rem] truncate text-sm font-bold text-brand-700 font-display sm:max-w-none sm:text-xl">
+                  LAZOĞLU KURUYEMİŞ
                 </span>
                 <p className="text-xs text-brand-500 hidden sm:block">
                   Doğal & Taze
@@ -178,7 +187,7 @@ export default function Navbar() {
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
                 className="btn-icon hidden sm:flex"
@@ -229,13 +238,13 @@ export default function Navbar() {
         </div>
 
         {isMenuOpen && (
-          <div className="lg:hidden border-t border-gray-100 bg-white animate-slide-up">
+          <div className="max-h-[calc(100svh-6.5rem)] overflow-y-auto overscroll-contain border-t border-gray-100 bg-white animate-slide-up lg:hidden">
             <div className="container-main py-4 space-y-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`block px-4 py-3 rounded-xl font-medium transition-all ${
+                  className={`block rounded-xl px-4 py-3 text-center font-medium transition-all ${
                     pathname === link.href
                       ? "text-brand-700 bg-brand-50"
                       : "text-gray-700 hover:bg-gray-50"
@@ -245,18 +254,20 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="pt-2 border-t border-gray-100">
-                <p className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <p className="px-4 py-2 text-center text-xs font-semibold uppercase tracking-wider text-gray-400">
                   Kategoriler
                 </p>
-                {categories.map((category) => (
-                  <Link
-                    key={category.name}
-                    href={category.href}
-                    className="block px-6 py-2 text-sm text-gray-600 hover:text-brand-700 transition-colors"
-                  >
-                    {category.name}
-                  </Link>
-                ))}
+                <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+                  {categories.map((category) => (
+                    <Link
+                      key={category.name}
+                      href={category.href}
+                      className="block rounded-xl px-4 py-2.5 text-center text-sm text-gray-600 transition-colors hover:bg-brand-50 hover:text-brand-700"
+                    >
+                      {category.name}
+                    </Link>
+                  ))}
+                </div>
               </div>
               <div className="pt-2">
                 <form action="/urunler" method="get">

@@ -1,122 +1,169 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Award, Leaf, Heart, Star } from "lucide-react";
+import { Leaf, ShieldCheck, Heart, Award, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Hakkımızda",
   description:
-    "FK Kuruyemiş olarak doğanın en taze ve en doğal lezzetlerini en saf haliyle sofralarınıza ulaştırıyoruz. Çorum'un bereketli topraklarından aldığımız güçle, geleneksel yöntemlerle hazırlıyoruz.",
+    "LAZOĞLU KURUYEMİŞ olarak doğanın en taze ve en doğal lezzetlerini en saf haliyle sofranıza ulaştırıyoruz.",
 };
 
 export default function HakkimizdaPage() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero */}
-      <div className="relative bg-gradient-to-br from-brand-600 to-brand-500 py-20 overflow-hidden">
-        <div className="absolute inset-0 opacity-15">
-          <div className="w-full h-full" style={{ backgroundImage: "radial-gradient(circle at 30% 50%, #fde8b0 0%, transparent 50%), radial-gradient(circle at 70% 50%, #fff9ec 0%, transparent 50%)" }} />
+    <div className="min-h-screen bg-white selection:bg-brand-500 selection:text-white pb-20">
+      
+      {/* Clean & Breathtaking Hero */}
+      <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center">
+        <div className="absolute inset-0">
+          <Image 
+            src="/images/hero-bg.jpg" 
+            alt="Lazoğlu Kuruyemiş Tarladan Sofraya" 
+            fill 
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
         </div>
-        <div className="container-main relative z-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-white font-display mb-6">
-            Hakkımızda
+        
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto mt-16">
+          <p className="text-amber-300 font-semibold tracking-[0.2em] uppercase text-sm mb-6 animate-fade-in">
+            1995'ten Bugüne
+          </p>
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white font-display leading-[1.1] drop-shadow-lg">
+            Doğanın Bize Sunduğu <br />
+            <span className="text-amber-100 italic font-serif">En Saf Lezzet</span>
           </h1>
-          <p className="text-brand-100 text-xl max-w-2xl mx-auto">
-            Dalından Sofranıza — FK Kuruyemiş'in Hikayesi
-          </p>
         </div>
-      </div>
+      </section>
 
-      {/* Story */}
-      <div className="container-main py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
-          <div>
-            <span className="text-brand-600 font-semibold text-sm uppercase tracking-wider mb-3 block">
-              Hikayemiz
-            </span>
-            <h2 className="text-3xl font-bold text-gray-900 font-display mb-6">
-              Dalından Sofranıza, FK Kuruyemiş'in Hikayesi
-            </h2>
-            <div className="space-y-4 text-gray-600 leading-relaxed">
-              <p>
-                FK Kuruyemiş olarak yolculuğumuza, doğanın bize sunduğu en taze ve en doğal
-                lezzetleri en saf haliyle sofralarınıza ulaştırma hayaliyle başladık.
-                Kuruyemişin sadece bir atıştırmalık değil, aynı zamanda bir kültür,
-                bir sohbet eşlikçisi ve bir sağlık kaynağı olduğuna inanıyoruz.
-              </p>
-              <p>
-                Yılların verdiği tecrübe ve kuruyemişin merkezi Çorum'un bereketli
-                topraklarından aldığımız güçle, her bir nohudu özenle seçiyor, her bir
-                çekirdeği tam kıvamında kavuruyoruz. Bizim için <strong>'tazelik'</strong> sadece
-                bir kelime değil, markamızın en temel sözüdür. Ürünlerimizi hazırlarken
-                geleneksel yöntemleri modern hijyen standartlarıyla birleştiriyor,
-                doğallıktan asla ödün vermiyoruz.
-              </p>
-              <p>
-                FK Kuruyemiş ailesi olarak, ailemize yedirmeyeceğimiz hiçbir ürünü sizin
-                sofranıza göndermiyoruz. En taze leblebiden, en çıtır fındığa kadar geniş
-                ürün yelpazemizle, <strong>sağlığı ve lezzeti kapınıza getiriyoruz.</strong>
-              </p>
-            </div>
-          </div>
-          <div className="relative">
-            <div className="relative aspect-square rounded-3xl overflow-hidden shadow-warm-lg">
-              <Image
-                src="/images/hakkimizda-bg.png"
-                alt="FK KURUYEMİŞ - Leblebi Fıçı"
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="absolute -bottom-6 -left-6 bg-brand-600 text-white p-5 rounded-2xl shadow-lg">
-              <p className="text-4xl font-bold font-display">30+</p>
-              <p className="text-brand-200 text-sm">Yıllık Tecrübe</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Values */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 font-display">
-            Değerlerimiz
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-20">
-          {[
-            { icon: Leaf, title: "Doğallık", desc: "Hiçbir ürününe yapay katkı maddesi eklenmez.", color: "text-forest-600 bg-forest-50" },
-            { icon: Award, title: "Kalite", desc: "Her parti ürün sevkiyat öncesinde test edilir.", color: "text-brand-600 bg-brand-50" },
-            { icon: Heart, title: "Tutku", desc: "İşimizi sevgi ve tutkuyla yapıyoruz.", color: "text-red-600 bg-red-50" },
-            { icon: Star, title: "Güven", desc: "30.000+ mutlu müşterinin tercihi.", color: "text-amber-600 bg-amber-50" },
-          ].map((v) => {
-            const Icon = v.icon;
-            return (
-              <div key={v.title} className="text-center p-6 rounded-2xl bg-gray-50 hover:shadow-warm transition-all hover:-translate-y-1 duration-300">
-                <div className={`w-14 h-14 ${v.color} rounded-xl flex items-center justify-center mx-auto mb-4`}>
-                  <Icon size={24} />
-                </div>
-                <h3 className="font-bold text-gray-900 mb-2">{v.title}</h3>
-                <p className="text-gray-500 text-sm">{v.desc}</p>
+      {/* Elegant Stats */}
+      <section className="container-main -mt-16 relative z-20">
+        <div className="bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-8 sm:p-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-gray-100/80">
+            {[
+              { num: "30+", label: "Yıllık Deneyim" },
+              { num: "50B", label: "Mutlu Müşteri" },
+              { num: "%100", label: "Doğal Ürün" },
+              { num: "81", label: "İle Teslimat" },
+            ].map((stat, i) => (
+              <div key={i} className="text-center px-2">
+                <p className="text-3xl sm:text-4xl font-bold text-gray-900 font-display mb-1">{stat.num}</p>
+                <p className="text-xs sm:text-sm text-gray-500 uppercase tracking-widest">{stat.label}</p>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
+      </section>
 
-        {/* CTA */}
-        <div className="text-center bg-gradient-to-r from-brand-600 to-brand-700 rounded-3xl p-12">
-          <h2 className="text-3xl font-bold text-white font-display mb-4">
-            Bizimle Alışveriş Yapın
-          </h2>
-          <p className="text-white/80 mb-8 text-lg">
-            Çorum'un bereketli topraklarından sofralarınıza, taze ve doğal lezzetler sizi bekliyor.
-          </p>
-          <Link
-            href="/urunler"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-brand-700 font-bold rounded-2xl hover:bg-brand-50 transition-colors text-lg"
-          >
-            Ürünleri Keşfet
-          </Link>
+      {/* The Story - Magazine Style Minimalist */}
+      <section className="py-24 sm:py-32">
+        <div className="container-main max-w-5xl">
+          <div className="flex flex-col md:flex-row gap-12 md:gap-24">
+            
+            <div className="md:w-1/3">
+              <div className="sticky top-32">
+                <div className="w-12 h-1 bg-brand-500 mb-6" />
+                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 font-display mb-4">
+                  Hikayemiz
+                </h2>
+                <p className="text-gray-500 leading-relaxed">
+                  Çorum'un bereketli topraklarında başlayan, tutkuyla kavrulan bir yolculuk.
+                </p>
+              </div>
+            </div>
+
+            <div className="md:w-2/3 prose prose-lg prose-stone max-w-none">
+              <p className="text-xl sm:text-2xl text-gray-800 font-medium leading-relaxed mb-10">
+                LAZOĞLU Kuruyemiş olarak yolculuğumuza, doğanın bize sunduğu en taze ve en doğal lezzetleri en saf haliyle sofralarınıza ulaştırma hayaliyle başladık.
+              </p>
+              
+              <div className="space-y-8 text-gray-600 leading-loose">
+                <p>
+                  Kuruyemişin sadece bir atıştırmalık değil, aynı zamanda bir kültür, bir sohbet eşlikçisi ve bir sağlık kaynağı olduğuna inanıyoruz. Yılların verdiği tecrübe ve kuruyemişin merkezi Çorum'un bereketli topraklarından aldığımız güçle, her bir nohudu özenle seçiyor, her bir çekirdeği tam kıvamında kavuruyoruz.
+                </p>
+                <p>
+                  Bizim için <strong>'tazelik'</strong> sadece bir kelime değil, markamızın en temel sözüdür. Ürünlerimizi hazırlarken geleneksel yöntemleri modern hijyen standartlarıyla birleştiriyor, doğallıktan asla ödün vermiyoruz.
+                </p>
+                <div className="bg-brand-50/50 p-8 rounded-2xl border border-brand-100 my-10">
+                  <p className="text-brand-900 font-medium italic text-lg m-0">
+                    "Ailemize yedirmeyeceğimiz hiçbir ürünü sizin sofranıza göndermiyoruz. En taze leblebiden, en çıtır fındığa kadar sağlığı kapınıza getiriyoruz."
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Clean Photo Break */}
+      <section className="container-main max-w-6xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="relative h-[400px] rounded-[2rem] overflow-hidden group">
+            <Image src="/images/hakkimizda-bg.png" alt="Üretim" fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
+          </div>
+          <div className="relative h-[400px] rounded-[2rem] overflow-hidden group">
+            <Image src="/images/kuru-kayisi.jpg" alt="Ürünler" fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
+          </div>
+        </div>
+      </section>
+
+      {/* Minimalist Values */}
+      <section className="py-24 sm:py-32 bg-white">
+        <div className="container-main max-w-5xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 font-display">Neden Biz?</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
+            {[
+              { icon: Leaf, title: "Doğallıktan Ödün Vermeyiz", desc: "Hiçbir ürünümüzde yapay renklendirici, koruyucu veya kimyasal katkı maddesi bulunmaz. Doğanın verdiğini aynı saflıkta sunarız." },
+              { icon: ShieldCheck, title: "Tazelik Garantisi", desc: "Aylarca rafta bekleyen ürünleri değil, siparişinize özel hazırlanan ve paketlenen en taze kuruyemişleri yersiniz." },
+              { icon: Heart, title: "Tutkuyla Hazırlarız", desc: "30 yılı aşkın süredir aynı heyecanla, her bir siparişi kendi ailemize hazırlıyormuş gibi özenle paketleriz." },
+              { icon: Award, title: "Birinci Sınıf Kalite", desc: "Hasat zamanı en iyi tarlaları seçer, eleklerden sadece birinci sınıf, en iri ve en kaliteli mahsulleri geçiririz." },
+            ].map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <div key={i} className="flex gap-6 items-start">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-brand-50 flex items-center justify-center text-brand-600">
+                    <Icon size={24} strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
+                    <p className="text-gray-500 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Minimalist CTA */}
+      <section className="container-main max-w-4xl pb-12">
+        <div className="bg-stone-900 rounded-[3rem] p-12 sm:p-20 text-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-brand-600/20 blur-[80px] rounded-full" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-600/20 blur-[80px] rounded-full" />
+          
+          <div className="relative z-10">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white font-display mb-6">
+              Bu Lezzeti Denemeye Hazır Mısınız?
+            </h2>
+            <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
+              Hemen şimdi taptaze siparişinizi verin, Çorum'un en özel kuruyemişleri kapınıza gelsin.
+            </p>
+            <Link
+              href="/urunler"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-white text-stone-900 font-bold rounded-full hover:scale-105 transition-transform duration-300 shadow-xl"
+            >
+              Mağazaya Git <ArrowRight size={18} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }

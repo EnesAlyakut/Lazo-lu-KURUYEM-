@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: "Urun Bulunamadi" };
 
   return {
-    title: product.metaTitle || `${product.name} | FK KURUYEMIS`,
+    title: product.metaTitle || `${product.name} | LAZOĞLU KURUYEMİŞ`,
     description:
       product.metaDescription || product.description.substring(0, 155),
     openGraph: {
@@ -84,7 +84,7 @@ export default async function ProductDetailPage({ params }: Props) {
     name: product.name,
     description: product.description,
     image: product.images,
-    brand: { "@type": "Brand", name: "FK KURUYEMIS" },
+    brand: { "@type": "Brand", name: "LAZOĞLU KURUYEMİŞ" },
     offers: {
       "@type": "Offer",
       price: (product.discountPrice || product.basePrice).toFixed(2),

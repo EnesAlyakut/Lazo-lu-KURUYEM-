@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
         metaTitle: body.metaTitle,
         metaDescription: body.metaDescription,
         tags: body.tags ?? [],
-        authorName: body.authorName ?? "FK KURUYEMİŞ",
+        authorName: body.authorName ?? "LAZOĞLU KURUYEMİŞ",
       },
     });
 

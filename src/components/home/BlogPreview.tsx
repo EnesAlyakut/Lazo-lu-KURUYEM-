@@ -6,11 +6,11 @@ export default function BlogPreview({ posts }: { posts: any[] }) {
   if (!posts.length) return null;
 
   return (
-    <section className="py-20 bg-white">
+    <section className="bg-white py-10 sm:py-20">
       <div className="container-main">
-        <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
+        <div className="mb-7 flex flex-col items-center gap-4 text-center sm:mb-12 sm:flex-row sm:items-end sm:justify-between sm:text-left">
           <div>
-            <div className="flex items-center gap-2 mb-3">
+            <div className="mb-3 flex items-center justify-center gap-2 sm:justify-start">
               <BookOpen size={18} className="text-brand-500" />
               <span className="text-brand-600 font-semibold text-sm uppercase tracking-wider">
                 Blog
@@ -21,12 +21,12 @@ export default function BlogPreview({ posts }: { posts: any[] }) {
               Hediyelik kutular, LüksLeb lezzetleri ve özel sunum fikirleri
             </p>
           </div>
-          <Link href="/blog" className="btn-secondary gap-2">
+          <Link href="/blog" className="btn-secondary w-full max-w-xs gap-2 sm:w-auto">
             Tüm Yazılar <ArrowRight size={16} />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
           {posts.map((post) => (
             <Link
               key={post.id}
@@ -47,7 +47,7 @@ export default function BlogPreview({ posts }: { posts: any[] }) {
                   </div>
                 )}
               </div>
-              <div className="p-5">
+              <div className="p-4 sm:p-5">
                 <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-brand-600 transition-colors font-display">
                   {post.title}
                 </h3>

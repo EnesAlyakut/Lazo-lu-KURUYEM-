@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Lock, User } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function AdminGirisPage() {
@@ -42,19 +42,22 @@ export default function AdminGirisPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-900 via-brand-800 to-gray-900 p-4">
       <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <div className="relative mx-auto mb-4 h-16 w-16">
+        <div className="mb-10 text-center">
+          <div className="relative mx-auto mb-6 h-32 w-32 sm:h-40 sm:w-40 transition-transform duration-500 hover:scale-105">
+            <div className="absolute inset-0 rounded-full bg-white/10 blur-2xl" />
             <Image
               src="/images/logo_circular.png"
-              alt="FK KURUYEMİŞ"
+              alt="LAZOĞLU KURUYEMİŞ"
               fill
-              className="object-contain brightness-0 invert"
+              className="object-contain drop-shadow-2xl"
+              priority
+              quality={100}
             />
           </div>
-          <h1 className="font-display text-2xl font-bold text-white">
-            FK KURUYEMİŞ
+          <h1 className="font-display text-3xl font-bold text-white drop-shadow-md">
+            LAZOĞLU KURUYEMİŞ
           </h1>
-          <p className="mt-1 text-brand-300">Yönetim Paneli</p>
+          <p className="mt-2 text-brand-300 font-medium tracking-wide">Yönetim Paneli</p>
         </div>
 
         <div className="rounded-3xl bg-white p-8 shadow-2xl">
@@ -64,9 +67,9 @@ export default function AdminGirisPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="input-label">E-posta</label>
+              <label className="input-label">Kullanıcı Adı</label>
               <div className="relative">
-                <Mail
+                <User
                   size={16}
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                 />
@@ -78,7 +81,7 @@ export default function AdminGirisPage() {
                     setForm({ ...form, email: event.target.value })
                   }
                   className="input-field pl-10"
-                  placeholder="admin@admin.com"
+                  placeholder="lazoglu"
                 />
               </div>
             </div>

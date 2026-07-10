@@ -43,7 +43,7 @@ export default function NewsletterForm() {
         placeholder="E-posta adresiniz"
         required
         disabled={loading}
-        className="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/60 focus:outline-none focus:border-white focus:bg-white/20 transition-all disabled:opacity-60"
+        className="min-w-0 flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/60 focus:outline-none focus:border-white focus:bg-white/20 transition-all disabled:opacity-60"
       />
       <button
         type="submit"
