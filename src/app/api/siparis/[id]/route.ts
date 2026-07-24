@@ -4,16 +4,17 @@ import { requireAdmin } from "@/lib/auth";
 import { unauthorized, notFound, handleError } from "@/lib/apiErrors";
 
 interface Params {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export async function GET(req: NextRequest, { params }: Params) {
+export async function GET(req: NextRequest, context: Params) {
   try {
+    const { id } = await context.params;
     const admin = await requireAdmin(req);
     if (!admin) return unauthorized();
 
     const order = await prisma.order.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         items: {
           include: {
@@ -32,8 +33,9 @@ export async function GET(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: Params) {
+export async function PATCH(req: NextRequest, context: Params) {
   try {
+    const { id } = await context.params;
     const admin = await requireAdmin(req);
     if (!admin) return unauthorized();
 
@@ -54,7 +56,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     }
 
     const order = await prisma.order.update({
-      where: { id: params.id },
+      where: { id },
       data: { status },
     });
 

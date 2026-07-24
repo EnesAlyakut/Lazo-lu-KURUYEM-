@@ -30,9 +30,9 @@ function toStringArray(value: unknown): string[] {
 export default async function UrunlerPage({
   searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }) {
-  const { kategori, filtre, ara, sayfa } = searchParams;
+  const { kategori, filtre, ara, sayfa } = await searchParams;
   const page = Number.parseInt(sayfa || "1", 10) || 1;
   const perPage = 12;
 

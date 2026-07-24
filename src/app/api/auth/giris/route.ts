@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { signToken, setAuthCookie } from "@/lib/auth";
 import { loginRateLimit } from "@/lib/rateLimit";
@@ -20,18 +19,29 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { email, password } = loginSchema.parse(body);
 
-    // Exclusive Admin Login
-    if (email.toLowerCase().trim() === "lazoglu" && password === "31697286lazoglu") {
+    const configuredUsername = process.env.ADMIN_USERNAME?.trim().toLowerCase();
+    const configuredPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+
+    if (!configuredUsername || !configuredPasswordHash) {
+      console.error("Admin giriş bilgileri yapılandırılmamış.");
+      return serverError("Yönetici girişi yapılandırılmamış.");
+    }
+
+    const isValidLogin =
+      email.toLowerCase().trim() === configuredUsername &&
+      (await bcrypt.compare(password, configuredPasswordHash));
+
+    if (isValidLogin) {
       const token = await signToken({
-        id: "admin-id-bypass",
-        email: "lazoglu",
+        id: "admin",
+        email: configuredUsername,
         name: "Lazoğlu Admin",
         role: "ADMIN",
       });
 
       const response = NextResponse.json({
         success: true,
-        user: { id: "admin-id-bypass", name: "Lazoğlu Admin", email: "lazoglu", role: "ADMIN" },
+        user: { id: "admin", name: "Lazoğlu Admin", email: configuredUsername, role: "ADMIN" },
       });
 
       setAuthCookie(response, token);

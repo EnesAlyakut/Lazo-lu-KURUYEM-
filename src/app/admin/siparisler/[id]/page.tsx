@@ -47,7 +47,7 @@ function toStringArray(value: unknown): string[] {
 }
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 async function getOrder(id: string) {
@@ -66,7 +66,8 @@ async function getOrder(id: string) {
 }
 
 export default async function SiparisDetayPage({ params }: Props) {
-  const order = await getOrder(params.id);
+  const { id } = await params;
+  const order = await getOrder(id);
   if (!order) notFound();
 
   const status = statusConfig[order.status] || statusConfig.PENDING;

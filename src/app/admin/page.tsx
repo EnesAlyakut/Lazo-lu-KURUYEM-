@@ -159,8 +159,8 @@ export default async function AdminDashboard() {
   ];
 
   return (
-    <div className="p-6 pt-20 lg:p-8 lg:pt-8">
-      <div className="mb-8">
+    <div className="p-4 pt-20 lg:p-8 lg:pt-8">
+      <div className="mb-6">
         <h1 className="font-display text-2xl font-bold text-gray-900">Dashboard</h1>
         <p className="mt-1 text-gray-500">Sipariş, gelir, ürün ve abone özetiniz burada.</p>
       </div>
@@ -177,26 +177,27 @@ export default async function AdminDashboard() {
         </div>
       )}
 
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      {/* İstatistik Kartları */}
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.label} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <div key={stat.label} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
               <div className="mb-3 flex items-center justify-between gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${stat.color}`}>
-                  <Icon size={18} className="text-white" />
+                <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${stat.color}`}>
+                  <Icon size={16} className="text-white" />
                 </div>
               </div>
-              <p className="truncate text-2xl font-bold text-gray-900">{stat.value}</p>
-              <p className="mt-1 text-sm text-gray-500">{stat.label}</p>
-              <p className="mt-3 min-h-4 text-xs text-gray-400">{stat.detail}</p>
+              <p className="truncate text-xl font-bold text-gray-900">{stat.value}</p>
+              <p className="mt-1 text-xs text-gray-500">{stat.label}</p>
+              <p className="mt-2 min-h-4 text-[10px] text-gray-400 leading-snug">{stat.detail}</p>
             </div>
           );
         })}
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-4 sm:p-5">
           <div>
             <h2 className="font-bold text-gray-900">Son Siparişler</h2>
             <p className="mt-0.5 text-xs text-gray-400">Müşteri siparişi tamamladığında buraya düşer.</p>
@@ -206,7 +207,44 @@ export default async function AdminDashboard() {
           </Link>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobil: Kart görünümü */}
+        <div className="divide-y divide-gray-100 md:hidden">
+          {recentOrders.map((order) => {
+            const status = statusLabels[order.status] || statusLabels.PENDING;
+            const StatusIcon = status.icon;
+            return (
+              <div key={order.id} className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <Link href={`/admin/siparisler/${order.id}`} className="font-mono text-sm font-bold text-brand-600 hover:underline">
+                    {order.orderNumber}
+                  </Link>
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${status.color}`}>
+                    <StatusIcon size={10} />
+                    {status.label}
+                  </span>
+                </div>
+                <div className="flex justify-between items-end text-sm gap-2">
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900 truncate">{order.customerName}</p>
+                    <p className="text-xs text-gray-400">{order.items.length} ürün · {paymentLabels[order.paymentMethod] || order.paymentMethod}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="font-bold text-gray-900">{formatMoney(order.total)}</p>
+                    <p className="text-xs text-gray-400">{new Date(order.createdAt).toLocaleDateString("tr-TR")}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {recentOrders.length === 0 && (
+            <div className="py-12 text-center text-gray-400">
+              {dbError ? "Veritabanı bağlantısı kurulamadı." : "Henüz sipariş yok."}
+            </div>
+          )}
+        </div>
+
+        {/* Masaüstü: Tablo görünümü */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full min-w-[900px]">
             <thead className="bg-gray-50">
               <tr>

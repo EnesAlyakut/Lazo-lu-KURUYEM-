@@ -34,7 +34,7 @@ export default function IletisimPage() {
           <div className="lg:col-span-2 space-y-5">
 
             <a
-              href="tel:+905416490883"
+              href="tel:+905424415632"
               className="flex items-start sm:items-center gap-4 p-4 sm:p-5 bg-white rounded-2xl border border-brand-100 shadow-sm hover:shadow-warm hover:-translate-y-0.5 transition-all duration-200 group"
             >
               <div className="w-14 h-14 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-brand-100 transition-colors">
@@ -42,13 +42,13 @@ export default function IletisimPage() {
               </div>
               <div>
                 <p className="text-xs font-semibold text-brand-500 uppercase tracking-wider mb-0.5">Telefon &amp; WhatsApp</p>
-                <p className="text-lg font-bold text-gray-900">0 (541) 649 08 83</p>
+                <p className="text-lg font-bold text-gray-900">0 (542) 441 56 32</p>
                 <p className="text-sm text-gray-500">Hafta içi ve Cumartesi: 09:00 – 20:00</p>
               </div>
             </a>
 
             <a
-              href="https://wa.me/905416490883"
+              href="https://wa.me/905424415632"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-start sm:items-center gap-4 p-4 sm:p-5 bg-white rounded-2xl border border-green-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
@@ -58,7 +58,7 @@ export default function IletisimPage() {
               </div>
               <div>
                 <p className="text-xs font-semibold text-green-500 uppercase tracking-wider mb-0.5">WhatsApp</p>
-                <p className="text-lg font-bold text-gray-900">0 (541) 649 08 83</p>
+                <p className="text-lg font-bold text-gray-900">0 (542) 441 56 32</p>
                 <p className="text-sm text-gray-500">Hızlı yanıt için yazın</p>
               </div>
             </a>
@@ -79,7 +79,7 @@ export default function IletisimPage() {
               </div>
             </a>
             <a
-              href="mailto:info@lazoglukuruyemis.com"
+              href="mailto:alperguun999@gmail.com"
               className="flex items-start sm:items-center gap-4 p-4 sm:p-5 bg-white rounded-2xl border border-sky-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
             >
               <div className="w-14 h-14 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-sky-100 transition-colors">
@@ -87,7 +87,7 @@ export default function IletisimPage() {
               </div>
               <div>
                 <p className="text-xs font-semibold text-sky-500 uppercase tracking-wider mb-0.5">E-Posta</p>
-                <p className="font-bold text-gray-900">info@lazoglukuruyemis.com</p>
+                <p className="font-bold text-gray-900">alperguun999@gmail.com</p>
               </div>
             </a>
             <div className="flex items-start sm:items-center gap-4 p-4 sm:p-5 bg-white rounded-2xl border border-amber-100 shadow-sm">

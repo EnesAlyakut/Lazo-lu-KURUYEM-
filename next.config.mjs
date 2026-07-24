@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "standalone",
   distDir: process.env.NODE_ENV === "production" ? ".next-build" : ".next",
 
   // Security headers
@@ -66,10 +67,8 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
   },
 
-  // Next.js 14: Prisma & bcrypt must run server-side only
-  experimental: {
-    serverComponentsExternalPackages: ["@prisma/client", "bcryptjs"],
-  },
+  // Prisma & bcrypt must run server-side only
+  serverExternalPackages: ["@prisma/client", "bcryptjs"],
 
   // Disable powered-by header
   poweredByHeader: false,

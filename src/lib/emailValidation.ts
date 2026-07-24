@@ -136,8 +136,10 @@ async function hasMailExchange(domain: string) {
         setTimeout(() => reject(new Error("MX lookup timeout")), 3000)
       ),
     ]);
+    if (records.length === 0) return false;
     return records.some((record) => record.exchange && record.exchange !== ".");
   } catch {
-    return false;
+    // DNS timeout veya ağ hatası olursa geçerli kabul et (kullanıcıyı engelleme)
+    return true;
   }
 }

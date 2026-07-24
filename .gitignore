@@ -10,7 +10,9 @@ node_modules/
 .env.production
 
 # Prisma
-prisma/migrations/
+# Migration dosyaları production veritabanını güncellemek için repoda tutulur.
+!prisma/migrations/
+!prisma/migrations/**
 
 # Build outputs
 out/
@@ -37,6 +39,9 @@ yarn-error.log*
 # Testing
 coverage/
 .nyc_output/
+add-dummy-sub.ts
+check-subscribers.ts
+test-discount.ts
 
 # Docker volumes
 docker-volumes/

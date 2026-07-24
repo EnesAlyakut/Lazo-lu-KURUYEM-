@@ -3,15 +3,28 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, User } from "lucide-react";
-import { getBlogPostBySlug } from "@/data/blogCatalog";
+import { getPublicBlogPostBySlug } from "@/lib/blog";
 import { formatDate } from "@/lib/dateFormat";
+import { withoutBrandSuffix } from "@/lib/metadata";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 function renderContent(content: string) {
-  return content
+  const escaped = content.replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;",
+      })[character] || character
+  );
+
+  return escaped
     .trim()
     .split(/\n{2,}/)
     .map((block) => {
@@ -27,12 +40,13 @@ function renderContent(content: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = getBlogPostBySlug(params.slug);
+  const { slug } = await params;
+  const post = await getPublicBlogPostBySlug(slug);
 
   if (!post) return { title: "Yazı Bulunamadı" };
 
   return {
-    title: post.metaTitle || `${post.title} | LAZOĞLU KURUYEMİŞ Blog`,
+    title: withoutBrandSuffix(post.metaTitle || post.title),
     description: post.metaDescription || post.excerpt,
     openGraph: {
       title: post.metaTitle || post.title,
@@ -44,7 +58,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BlogPostPage({ params }: Props) {
-  const post = getBlogPostBySlug(params.slug);
+  const { slug } = await params;
+  const post = await getPublicBlogPostBySlug(slug);
 
   if (!post) notFound();
 

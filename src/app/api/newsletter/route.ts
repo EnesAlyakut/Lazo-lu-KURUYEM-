@@ -27,6 +27,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: emailValidation.message }, { status: 400 });
     }
 
+    const existingUser = await prisma.newsletter.findUnique({
+      where: { email: emailValidation.normalizedEmail },
+    });
+
+    if (existingUser && existingUser.isActive) {
+      return NextResponse.json(
+        { message: "Bu e-posta adresi zaten e-bültene kayıtlı." },
+        { status: 400 }
+      );
+    }
+
     await prisma.newsletter.upsert({
       where: { email: emailValidation.normalizedEmail },
       update: { isActive: true },

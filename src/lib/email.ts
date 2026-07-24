@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const brandName = "LAZOĞLU KURUYEMİŞ";
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001").replace(/\/$/, "");
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
 
 interface OrderEmailData {
   to: string;
@@ -61,6 +61,60 @@ function canSendEmail() {
 
 function sender() {
   return process.env.SMTP_FROM || `${brandName} <noreply@fkkuruyemis.com>`;
+}
+
+function escapeHtml(value: string) {
+  return value.replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;",
+      })[character] || character
+  );
+}
+
+export async function sendContactMessage(data: {
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  message: string;
+}) {
+  if (!canSendEmail()) return false;
+
+  const recipient = process.env.CONTACT_EMAIL || process.env.SMTP_USER;
+  if (!recipient) return false;
+
+  await transporter.sendMail({
+    from: sender(),
+    to: recipient,
+    replyTo: data.email,
+    subject: `İletişim Formu: ${data.subject || "Yeni mesaj"}`,
+    text: [
+      `Ad Soyad: ${data.name}`,
+      `E-posta: ${data.email}`,
+      `Telefon: ${data.phone || "-"}`,
+      `Konu: ${data.subject || "-"}`,
+      "",
+      data.message,
+    ].join("\n"),
+    html: layout(
+      "Yeni İletişim Mesajı",
+      escapeHtml(data.subject || "Web sitesi iletişim formu"),
+      `
+        <p><strong>Ad Soyad:</strong> ${escapeHtml(data.name)}</p>
+        <p><strong>E-posta:</strong> ${escapeHtml(data.email)}</p>
+        <p><strong>Telefon:</strong> ${escapeHtml(data.phone || "-")}</p>
+        <p style="white-space: pre-wrap;"><strong>Mesaj:</strong><br>${escapeHtml(data.message)}</p>
+      `
+    ),
+  });
+
+  return true;
 }
 
 function formatPrice(value: number) {

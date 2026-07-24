@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiRateLimit } from "@/lib/rateLimit";
 import { tooManyRequests } from "@/lib/apiErrors";
+import { sendContactMessage } from "@/lib/email";
 import { z } from "zod";
 
 const iletisimSchema = z.object({
@@ -20,7 +21,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const data = iletisimSchema.parse(body);
 
-    console.log("[İletişim Formu]", data);
+    const sent = await sendContactMessage(data);
+    if (!sent) {
+      return NextResponse.json(
+        { message: "İletişim e-postası yapılandırılmamış. Lütfen telefon veya WhatsApp üzerinden ulaşın." },
+        { status: 503 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

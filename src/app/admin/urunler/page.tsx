@@ -11,14 +11,16 @@ import {
   X,
 } from "lucide-react";
 
+import DeleteProductButton from "@/components/admin/DeleteProductButton";
+
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  searchParams?: {
+  searchParams?: Promise<{
     q?: string;
     kategori?: string;
     durum?: string;
-  };
+  }>;
 }
 
 function toStringArray(value: unknown): string[] {
@@ -37,9 +39,10 @@ function formatPrice(value: number | { toString: () => string } | null | undefin
 }
 
 export default async function AdminUrunlerPage({ searchParams }: PageProps) {
-  const query = searchParams?.q?.trim() || "";
-  const categorySlug = searchParams?.kategori || "";
-  const status = searchParams?.durum || "";
+  const resolvedSearchParams = await searchParams;
+  const query = resolvedSearchParams?.q?.trim() || "";
+  const categorySlug = resolvedSearchParams?.kategori || "";
+  const status = resolvedSearchParams?.durum || "";
 
   const where = {
     ...(query
@@ -302,6 +305,7 @@ export default async function AdminUrunlerPage({ searchParams }: PageProps) {
                   >
                     <Eye size={15} />
                   </Link>
+                  <DeleteProductButton productId={product.id} />
                 </div>
               </div>
             );

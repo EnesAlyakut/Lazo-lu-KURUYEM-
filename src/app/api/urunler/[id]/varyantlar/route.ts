@@ -6,9 +6,10 @@ import { unauthorized, handleError } from "@/lib/apiErrors";
 /** POST /api/urunler/[id]/varyantlar - Admin only */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
     const admin = await requireAdmin(req);
     if (!admin) return unauthorized();
 
@@ -16,7 +17,7 @@ export async function POST(
 
     const variant = await prisma.productVariant.create({
       data: {
-        productId: params.id,
+        productId: id,
         weight: body.weight,
         price: body.price,
         stock: body.stock ?? 0,
@@ -25,12 +26,12 @@ export async function POST(
 
     // Toplam stoku güncelle
     const totalStock = await prisma.productVariant.aggregate({
-      where: { productId: params.id },
+      where: { productId: id },
       _sum: { stock: true },
     });
 
     await prisma.product.update({
-      where: { id: params.id },
+      where: { id },
       data: { totalStock: totalStock._sum.stock ?? 0 },
     });
 
@@ -43,11 +44,12 @@ export async function POST(
 /** GET /api/urunler/[id]/varyantlar - Public */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
     const variants = await prisma.productVariant.findMany({
-      where: { productId: params.id },
+      where: { productId: id },
       orderBy: { price: "asc" },
     });
     return NextResponse.json(variants);

@@ -124,7 +124,7 @@ export default function AdminGirisPage() {
           </form>
 
           <p className="mt-6 text-center text-xs text-gray-400">
-            Şifrenizi unuttuysanız yönetici kaydını güncelleyin veya seed scriptini tekrar çalıştırın.
+            Şifrenizi unuttuysanız sunucu ortamındaki yönetici giriş bilgilerini güncelleyin.
           </p>
         </div>
       </div>

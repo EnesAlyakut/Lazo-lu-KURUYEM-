@@ -94,12 +94,31 @@ export default function Navbar() {
     return () => document.body.classList.remove("mobile-menu-open");
   }, [isMenuOpen]);
 
+  const [announcementIndex, setAnnouncementIndex] = useState(0);
+
+  const announcements = [
+    "Taze taze kavruldu, kokuya gel! 🥜",
+    "Çay demlendiyse, yanına fıstık bizden! 🫖",
+    "Enerjiniz mi düştü? Bir avuç kuru üzüm yeter! 🍇",
+    "Bugün de tazecik leblebilerimizle kalpleri ısıtıyoruz. ❤️",
+    "Gülümsemek bedava, en taze kuruyemişler burada! 😊",
+    "Muhabbet koyuysa, çerez tabağı boş kalmaz! 🌰",
+    "Çorum'un sıcacık leblebisi, akşam keyfinize keyif katsın. ✨"
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setAnnouncementIndex((prev) => (prev + 1) % announcements.length);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, [announcements.length]);
+
   return (
     <>
       <div className="bg-gradient-to-r from-brand-700 via-brand-600 to-amber-500 py-1.5 text-center text-[11px] font-medium text-white sm:py-2 sm:text-sm">
         <span className="container-main flex items-center justify-center gap-2 leading-snug px-3">
-          <span>
-            Çorum leblebisi ve taze kuruyemişlerde özel fırsatlar sizi bekliyor.
+          <span key={announcementIndex} className="animate-fade-in">
+            {announcements[announcementIndex]}
           </span>
         </span>
       </div>
@@ -112,15 +131,16 @@ export default function Navbar() {
         }`}
       >
         <div className="container-main">
-          <div className="flex h-14 items-center justify-between gap-2 md:h-20">
-            <Link href="/" className="flex min-w-0 shrink items-center gap-2">
+          <div className="flex h-[72px] items-center justify-between gap-2 md:h-[100px]">
+            <Link href="/" className="flex min-w-0 shrink items-center gap-3">
               <Image
                 src="/images/logo_circular.png"
                 alt="LAZOĞLU KURUYEMİŞ Logo"
-                width={52}
-                height={52}
-                className="object-contain shrink-0 rounded-full scale-110"
+                width={104}
+                height={104}
+                className="h-[68px] w-[68px] shrink-0 rounded-full object-contain drop-shadow-md md:h-[96px] md:w-[96px]"
                 priority
+                quality={100}
               />
               <div className="min-w-0">
                 <span className="block max-w-[9rem] truncate text-sm font-bold text-brand-700 font-display sm:max-w-none sm:text-xl">

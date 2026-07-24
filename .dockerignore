@@ -1,0 +1,12 @@
+.git
+.gitignore
+.next
+.next-build
+node_modules
+.env
+.env.*
+!.env.example
+*.log
+work
+public/uploads
+nginx/ssl

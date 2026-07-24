@@ -7,7 +7,6 @@ import { CreditCard, Lock, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 import { calculateShippingCost, calculateTotalWeight } from "@/lib/shipping";
 import { validateOrderContactFields } from "@/lib/orderValidation";
-import { normalizeAndValidateCard } from "@/lib/paymentValidation";
 
 export const dynamic = "force-dynamic";
 
@@ -23,12 +22,13 @@ const paymentMethods = [
 ];
 
 export default function OdemePage() {
-  const { items, getTotal, clearCart, hasHydrated } = useCartStore();
+  const { items, getTotal, hasHydrated } = useCartStore();
   const router = useRouter();
   const paymentMethod = "CREDIT_CARD";
   const [submitting, setSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [paytrToken, setPaytrToken] = useState<string | null>(null);
   const [form, setForm] = useState({
     customerName: "",
     customerEmail: "",
@@ -38,10 +38,6 @@ export default function OdemePage() {
     district: "",
     postalCode: "",
     notes: "",
-    cardNumber: "",
-    cardExpiry: "",
-    cardCvv: "",
-    cardHolder: "",
   });
 
   const subtotal = getTotal();
@@ -69,18 +65,6 @@ export default function OdemePage() {
       return;
     }
 
-    const cardValidation = normalizeAndValidateCard({
-      cardHolder: form.cardHolder,
-      cardNumber: form.cardNumber,
-      cardExpiry: form.cardExpiry,
-      cardCvv: form.cardCvv,
-    });
-
-    if (!cardValidation.ok) {
-      toast.error(cardValidation.message);
-      return;
-    }
-
     setSubmitting(true);
     try {
       const res = await fetch("/api/siparis", {
@@ -96,9 +80,6 @@ export default function OdemePage() {
           address: contactValidation.normalized.address,
           postalCode: contactValidation.normalized.postalCode,
           paymentMethod,
-          cardHolder: cardValidation.card.holderName,
-          cardNumber: cardValidation.card.number,
-          cardCvv: cardValidation.card.cvc,
           items: items.map((item) => ({
             productId: item.productId,
             variantId: item.variantId,
@@ -118,11 +99,8 @@ export default function OdemePage() {
 
       const data = await res.json();
 
-      if (res.ok) {
-        clearCart();
-        localStorage.removeItem(CHECKOUT_COUPON_KEY);
-        toast.success("Siparişiniz alındı! Teşekkür ederiz.");
-        router.push(`/siparis-basarili?no=${data.orderNumber}`);
+      if (res.ok && data.token) {
+        setPaytrToken(data.token); // Show iframe!
       } else {
         toast.error(data.message || "Bir hata oluştu.");
       }
@@ -190,10 +168,10 @@ export default function OdemePage() {
   }, [mounted, hasHydrated, items.length, subtotal]);
 
   useEffect(() => {
-    if (mounted && hasHydrated && items.length === 0) {
+    if (mounted && hasHydrated && items.length === 0 && !paytrToken) {
       router.push("/sepet");
     }
-  }, [items.length, router, mounted, hasHydrated]);
+  }, [items.length, router, mounted, hasHydrated, paytrToken]);
 
   if (!mounted || !hasHydrated) {
     return (
@@ -203,7 +181,7 @@ export default function OdemePage() {
     );
   }
 
-  if (items.length === 0) {
+  if (items.length === 0 && !paytrToken) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-gray-400">Sepetiniz boş, yönlendiriliyorsunuz...</p>
@@ -220,6 +198,25 @@ export default function OdemePage() {
           <span className="font-semibold text-brand-600">Ödeme</span>
         </div>
 
+        {paytrToken ? (
+          <div className="card p-4 sm:p-6 mx-auto max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="mb-4 text-center">
+              <h2 className="font-display text-xl font-bold text-gray-900">
+                Güvenli Ödeme
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">Lütfen ödemenizi tamamlamak için aşağıdaki formu doldurun.</p>
+            </div>
+            <div className="w-full min-h-[650px] relative rounded-xl overflow-hidden border border-gray-100 bg-white">
+              <iframe
+                src={`https://www.paytr.com/odeme/guvenli/${paytrToken}`}
+                id="paytriframe"
+                frameBorder="0"
+                scrolling="no"
+                className="absolute inset-0 w-full h-full"
+              ></iframe>
+            </div>
+          </div>
+        ) : (
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
             <div className="space-y-6 lg:col-span-2">
@@ -376,74 +373,14 @@ export default function OdemePage() {
                   })}
                 </div>
 
-                <div className="mt-6 space-y-4 rounded-2xl bg-gray-50 p-4">
+                <div className="mt-4 flex items-start gap-3 rounded-xl bg-blue-50/50 border border-blue-100 p-4 text-sm text-blue-700">
+                  <Lock size={20} className="shrink-0 text-blue-500 mt-0.5" />
                   <div>
-                    <label className="input-label">Kart Üzerindeki İsim *</label>
-                    <input
-                      required
-                      type="text"
-                      className="input-field"
-                      value={form.cardHolder}
-                      onChange={(e) => setForm({ ...form, cardHolder: e.target.value })}
-                      placeholder="AD SOYAD"
-                    />
-                  </div>
-                  <div>
-                    <label className="input-label">Kart Numarası *</label>
-                    <input
-                      required
-                      type="text"
-                      maxLength={23}
-                      className="input-field"
-                      value={form.cardNumber}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          cardNumber: e.target.value
-                            .replace(/\D/g, "")
-                            .replace(/(.{4})/g, "$1 ")
-                            .trim(),
-                        })
-                      }
-                      placeholder="XXXX XXXX XXXX XXXX"
-                      inputMode="numeric"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                    <div>
-                      <label className="input-label">Son Kullanma *</label>
-                      <input
-                        required
-                        type="text"
-                        maxLength={5}
-                        className="input-field"
-                        value={form.cardExpiry}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, "").slice(0, 4);
-                          const formatted = value.length > 2 ? `${value.slice(0, 2)}/${value.slice(2)}` : value;
-                          setForm({ ...form, cardExpiry: formatted });
-                        }}
-                        placeholder="AA/YY"
-                        inputMode="numeric"
-                      />
-                    </div>
-                    <div>
-                      <label className="input-label">CVV *</label>
-                      <input
-                        required
-                        type="text"
-                        maxLength={4}
-                        className="input-field"
-                        value={form.cardCvv}
-                        onChange={(e) => setForm({ ...form, cardCvv: e.target.value.replace(/\D/g, "") })}
-                        placeholder="XXX"
-                        inputMode="numeric"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 rounded-xl bg-green-50 p-3 text-xs text-gray-500">
-                    <Lock size={14} className="text-green-600" />
-                    Ödeme bilgileriniz güvenli altyapı ile korunur.
+                    <p className="font-medium text-blue-900 mb-1">256-bit SSL & 3D Secure Güvencesi</p>
+                    <p>
+                      Kart bilgileriniz sitemizde tutulmaz. Sağ taraftaki <strong>Ödeme Al ve Siparişi Tamamla</strong> butonuna tıkladığınızda,
+                      BDDK onaylı <strong>PayTR</strong> güvenli ödeme penceresi açılacak ve ödemenizi bankanızın 3D Secure onayıyla güvenle yapabileceksiniz.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -509,6 +446,7 @@ export default function OdemePage() {
             </div>
           </div>
         </form>
+        )}
       </div>
     </div>
   );

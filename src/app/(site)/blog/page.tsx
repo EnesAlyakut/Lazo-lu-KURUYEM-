@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { BookOpen, ArrowRight, Calendar, User, Clock } from "lucide-react";
-import { getBlogPosts } from "@/data/blogCatalog";
+import { BookOpen, ArrowRight, User, Clock } from "lucide-react";
+import { getPublicBlogPosts } from "@/lib/blog";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
-  const posts = getBlogPosts();
+  const posts = await getPublicBlogPosts();
   const featuredPost = posts[0];
   const regularPosts = posts.slice(1);
 
@@ -81,7 +81,7 @@ export default async function BlogPage() {
                       </div>
                       <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg">
                         <Clock size={14} className="text-brand-500" />
-                        <span>{featuredPost.readTime}</span>
+                        <span>5 dk okuma</span>
                       </div>
                     </div>
                     <span className="flex items-center gap-2 text-brand-600 font-bold bg-brand-50 hover:bg-brand-100 px-5 py-2.5 rounded-xl transition-colors">
@@ -145,7 +145,7 @@ export default async function BlogPage() {
                   </span>
                   <span className="font-medium flex items-center gap-1.5">
                     <Clock size={14} className="text-gray-300" />
-                    {post.readTime}
+                    5 dk okuma
                   </span>
                 </div>
               </div>

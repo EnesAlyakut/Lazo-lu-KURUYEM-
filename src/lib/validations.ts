@@ -33,22 +33,11 @@ export const siparisSchema = z.object({
     .max(100, "\u0130l\u00e7e 100 karakteri ge\u00e7emez."),
   postalCode: z.string().max(10, "Posta kodu 10 karakteri ge\u00e7emez.").optional(),
   notes: z.string().max(1000, "Sipari\u015f notu 1000 karakteri ge\u00e7emez.").optional(),
-  paymentMethod: z.enum(["CREDIT_CARD"]),
-  cardHolder: z
-    .string({ required_error: "Kart \u00fczerindeki isim zorunludur." })
-    .trim()
-    .min(3, "Kart \u00fczerindeki isim ge\u00e7erli de\u011fil.")
-    .max(100, "Kart \u00fczerindeki isim 100 karakteri ge\u00e7emez."),
-  cardNumber: z
-    .string({ required_error: "Kart numaras\u0131 zorunludur." })
-    .min(12, "Kart numaras\u0131 ge\u00e7erli de\u011fil.")
-    .max(23, "Kart numaras\u0131 ge\u00e7erli de\u011fil."),
-  cardExpiry: z
-    .string({ required_error: "Son kullanma tarihi zorunludur." })
-    .regex(/^\d{2}\/\d{2}$/, "Son kullanma tarihi AA/YY format\u0131nda olmal\u0131d\u0131r."),
-  cardCvv: z
-    .string({ required_error: "CVV zorunludur." })
-    .regex(/^\d{3,4}$/, "CVV ge\u00e7erli de\u011fil."),
+  paymentMethod: z.literal("CREDIT_CARD"),
+  cardHolder: z.string().optional(),
+  cardNumber: z.string().optional(),
+  cardExpiry: z.string().optional(),
+  cardCvv: z.string().optional(),
   couponCode: z.string().max(50, "Kupon kodu 50 karakteri ge\u00e7emez.").optional(),
   items: z
     .array(

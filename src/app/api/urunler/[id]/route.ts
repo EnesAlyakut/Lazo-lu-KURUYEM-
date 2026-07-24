@@ -8,7 +8,7 @@ import {
 } from "@/lib/discountNotifications";
 
 interface Params {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 type VariantInput = {
@@ -29,14 +29,25 @@ function normalizeVariants(variants: unknown) {
     .filter((variant) => variant.weight && variant.price >= 0 && variant.stock >= 0);
 }
 
-export async function GET(_req: NextRequest, { params }: Params) {
+export async function GET(_req: NextRequest, context: Params) {
   try {
+    const { id } = await context.params;
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         category: true,
         variants: { orderBy: { price: "asc" } },
-        reviews: { where: { isApproved: true }, orderBy: { createdAt: "desc" } },
+        reviews: {
+          where: { isApproved: true },
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            authorName: true,
+            rating: true,
+            comment: true,
+            createdAt: true,
+          },
+        },
       },
     });
 
@@ -47,8 +58,9 @@ export async function GET(_req: NextRequest, { params }: Params) {
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: Params) {
+export async function PATCH(req: NextRequest, context: Params) {
   try {
+    const { id } = await context.params;
     const admin = await requireAdmin(req);
     if (!admin) return unauthorized();
 
@@ -59,7 +71,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       : Number(body.totalStock ?? 0);
 
     const previousProduct = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         name: true,
         slug: true,
@@ -98,11 +110,11 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
     const product = await prisma.$transaction(async (tx) => {
       if (variants) {
-        await tx.productVariant.deleteMany({ where: { productId: params.id } });
+        await tx.productVariant.deleteMany({ where: { productId: id } });
       }
 
       return tx.product.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           ...productData,
           variants:
@@ -145,17 +157,41 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: Params) {
+export async function DELETE(req: NextRequest, context: Params) {
   try {
+    const { id } = await context.params;
     const admin = await requireAdmin(req);
     if (!admin) return unauthorized();
 
-    await prisma.product.update({
-      where: { id: params.id },
-      data: { isActive: false },
+    // Check if this product is tied to any real orders
+    const hasOrders = await prisma.orderItem.findFirst({
+      where: { productId: id },
     });
 
-    return NextResponse.json({ success: true, message: "Ürün pasif yapıldı." });
+    if (hasOrders) {
+      // It has orders, so we MUST soft-delete to preserve order history
+      await prisma.product.update({
+        where: { id },
+        data: { isActive: false },
+      });
+      return NextResponse.json({
+        success: true,
+        message: "Ürün geçmiş siparişlerde yer aldığı için kalıcı silinemedi, ancak 'Pasif' (gizli) yapıldı."
+      });
+    }
+
+    // No orders, safe to hard-delete!
+    // First, clear from any open carts to avoid foreign key constraints
+    await prisma.cartItem.deleteMany({
+      where: { productId: id },
+    });
+
+    // Now delete the product itself (Reviews and Variants will cascade automatically)
+    await prisma.product.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true, message: "Ürün kalıcı olarak tamamen silindi." });
   } catch (error) {
     return handleError(error);
   }

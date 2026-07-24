@@ -1,79 +1,36 @@
-# ============================================================
-# STAGE 1: deps — Install dependencies
-# ============================================================
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
 
-COPY package.json package-lock.json* ./
-# Use ci for reproducible installs
-RUN npm ci --only=production=false
-
-# ============================================================
-# STAGE 2: builder — Generate Prisma client & build Next.js
-# ============================================================
 FROM node:20-alpine AS builder
 RUN apk add --no-cache openssl
 WORKDIR /app
-
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Generate Prisma client (without DB connection — schema only)
-RUN npx prisma generate
-
-# Disable telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV DATABASE_URL="mysql://build:build@127.0.0.1:3306/build"
+RUN npx prisma generate && npm run build
 
-# Skip DB connection during build
-ENV SKIP_ENV_VALIDATION=true
-ENV DATABASE_URL="postgresql://placeholder:placeholder@placeholder:5432/placeholder"
-
-RUN npm run build
-
-# ============================================================
-# STAGE 3: runner — Minimal production image
-# ============================================================
 FROM node:20-alpine AS runner
-RUN apk add --no-cache openssl curl
+RUN apk add --no-cache openssl curl && npm install -g prisma@5.22.0 tsx@4.20.6
 WORKDIR /app
-
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-# Create non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
-
-# Copy public assets
-COPY --from=builder /app/public ./public
-
-# Copy Prisma schema (needed for migrations at runtime)
-COPY --from=builder /app/prisma ./prisma
-
-# Copy package.json (needed for scripts)
-COPY --from=builder /app/package.json ./package.json
-
-# Copy standalone build output
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Copy Prisma client binaries
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-
-# Create uploads directory
-RUN mkdir -p ./public/uploads && chown nextjs:nodejs ./public/uploads
-
+ENV HOSTNAME=0.0.0.0
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/src/data ./src/data
+COPY --from=builder --chown=nextjs:nodejs /app/.next-build/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next-build/static ./.next-build/static
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+RUN mkdir -p /app/public/uploads && chown -R nextjs:nodejs /app/public/uploads
 USER nextjs
-
 EXPOSE 3000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:3000/api/health || exit 1
-
-CMD ["node", "server.js"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 CMD curl -fsS http://127.0.0.1:3000/api/health || exit 1
+CMD ["sh", "-c", "prisma migrate deploy && tsx prisma/init-catalog.ts && node server.js"]

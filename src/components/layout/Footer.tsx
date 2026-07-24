@@ -13,7 +13,7 @@ import {
 
 const whatsappNumber =
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/[^0-9]/g, "") ||
-  "905416490883";
+  "905424415632";
 
 const footerLinks = {
   urunler: [
@@ -29,6 +29,7 @@ const footerLinks = {
     { name: "İletişim", href: "/iletisim" },
     { name: "İade Politikası", href: "/iade-politikasi" },
     { name: "Gizlilik Politikası", href: "/gizlilik-politikasi" },
+    { name: "Mesafeli Satış Sözleşmesi", href: "/mesafeli-satis-sozlesmesi" },
   ],
   musteri: [
     { name: "Sepetim", href: "/sepet" },
@@ -61,13 +62,14 @@ export default function Footer() {
             {/* Brand Info */}
             <div className="sm:col-span-2 lg:col-span-2">
               <Link href="/" className="mb-4 flex items-center justify-center gap-3 sm:justify-start">
-                <div className="relative h-16 w-16 overflow-hidden rounded-full bg-white shadow-md ring-2 ring-white/15">
+                <div className="relative h-24 w-24 overflow-hidden rounded-full shadow-lg">
                   <Image
                     src="/images/logo_circular.png"
                     alt="LAZOĞLU KURUYEMİŞ Logo"
                     fill
-                    sizes="64px"
-                    className="object-cover scale-110"
+                    sizes="96px"
+                    className="object-contain"
+                    quality={100}
                   />
                 </div>
                 <div>
@@ -84,11 +86,11 @@ export default function Footer() {
               </p>
               <div className="space-y-3">
                 <a
-                  href="tel:+905416490883"
+                  href="tel:+905424415632"
                   className="flex items-center justify-center gap-2 text-sm transition-colors hover:text-brand-400 sm:justify-start"
                 >
                   <Phone size={14} className="text-brand-500" />
-                  0 (541) 649 08 83
+                  0 (542) 441 56 32
                 </a>
                 <div className="flex items-start justify-center gap-2 text-sm sm:justify-start">
                   <MapPin size={14} className="text-brand-500 mt-0.5 shrink-0" />
@@ -204,7 +206,7 @@ export default function Footer() {
               Güvenli ödeme ile korunuyorsunuz
             </span>
             <div className="flex gap-2">
-              {["Visa", "MC", "Iyzico"].map((pay) => (
+              {["Visa", "Mastercard", "PayTR"].map((pay) => (
                 <span
                   key={pay}
                   className="px-2 py-1 bg-gray-800 rounded text-xs text-gray-400 font-mono"

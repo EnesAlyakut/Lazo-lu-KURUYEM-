@@ -4,13 +4,12 @@ import { getCatalogProductById } from "@/data/productCatalog";
 import { badRequest, handleError, tooManyRequests, unauthorized } from "@/lib/apiErrors";
 import { requireAdmin } from "@/lib/auth";
 import { validateDeliverableEmail } from "@/lib/emailValidation";
-import { sendOrderConfirmationEmail } from "@/lib/email";
-import { chargeCreditCard } from "@/lib/iyzico";
+import { getPaytrToken } from "@/lib/paytr";
 import { validateCouponForCart } from "@/lib/coupons";
 import { validateOrderContactFields } from "@/lib/orderValidation";
-import { normalizeAndValidateCard } from "@/lib/paymentValidation";
 import { prisma } from "@/lib/prisma";
 import { apiRateLimit } from "@/lib/rateLimit";
+import { calculateShippingCost, calculateTotalWeight } from "@/lib/shipping";
 import { siparisSchema } from "@/lib/validations";
 
 function generateOrderNumber(): string {
@@ -25,7 +24,15 @@ function generateOrderNumber(): string {
 async function ensureCatalogProductInDatabase(productId: string) {
   const existingProduct = await prisma.product.findUnique({
     where: { id: productId },
-    select: { id: true, isActive: true, totalStock: true, name: true },
+    select: {
+      id: true,
+      isActive: true,
+      totalStock: true,
+      name: true,
+      basePrice: true,
+      discountPrice: true,
+      variants: { select: { id: true, weight: true, price: true, stock: true } },
+    },
   });
 
   if (existingProduct) return existingProduct;
@@ -35,7 +42,15 @@ async function ensureCatalogProductInDatabase(productId: string) {
 
   const existingProductBySlug = await prisma.product.findUnique({
     where: { slug: catalogProduct.slug },
-    select: { id: true, isActive: true, totalStock: true, name: true },
+    select: {
+      id: true,
+      isActive: true,
+      totalStock: true,
+      name: true,
+      basePrice: true,
+      discountPrice: true,
+      variants: { select: { id: true, weight: true, price: true, stock: true } },
+    },
   });
 
   if (existingProductBySlug) return existingProductBySlug;
@@ -83,7 +98,15 @@ async function ensureCatalogProductInDatabase(productId: string) {
       metaTitle: catalogProduct.metaTitle,
       metaDescription: catalogProduct.metaDescription,
     },
-    select: { id: true, isActive: true, totalStock: true, name: true },
+    select: {
+      id: true,
+      isActive: true,
+      totalStock: true,
+      name: true,
+      basePrice: true,
+      discountPrice: true,
+      variants: { select: { id: true, weight: true, price: true, stock: true } },
+    },
   });
 
   await Promise.all(
@@ -139,93 +162,91 @@ export async function POST(req: NextRequest) {
       return badRequest(emailValidation.message);
     }
 
-    const cardValidation = normalizeAndValidateCard({
-      cardHolder: data.cardHolder,
-      cardNumber: data.cardNumber,
-      cardExpiry: data.cardExpiry,
-      cardCvv: data.cardCvv,
-    });
-
-    if (!cardValidation.ok) {
-      return badRequest(cardValidation.message);
-    }
-
-    const itemTotal = data.items.reduce((sum, item) => sum + item.total, 0);
-
-    if (Math.abs(itemTotal - data.subtotal) > 0.01) {
-      return badRequest("Sepet ara toplamı doğrulanamadı.");
-    }
-
-    if (data.couponCode) {
-      const couponValidation = await validateCouponForCart(data.couponCode, data.subtotal);
-      if (!couponValidation.ok) return badRequest(couponValidation.message);
-
-      if (Math.abs(couponValidation.coupon.discountAmount - data.discount) > 0.01) {
-        return badRequest("Kupon indirimi doğrulanamadı.");
-      }
-    } else if (data.discount > 0) {
-      return badRequest("Kupon olmadan indirim uygulanamaz.");
-    }
-
-    const expectedTotal = Math.round((itemTotal + data.shippingCost - data.discount) * 100) / 100;
-    if (Math.abs(expectedTotal - data.total) > 0.01) {
-      return badRequest("Sipariş toplamı doğrulanamadı.");
-    }
-
-    if (process.env.REQUIRE_IYZICO_BEFORE_ORDER === "true") {
-      return badRequest("Canlı iyzico API bilgileri tanımlı değil. Ödeme alınmadan sipariş oluşturulamaz.");
-    }
-
-    if (data.couponCode) {
-      const coupon = await prisma.coupon.findUnique({
-        where: { code: data.couponCode.toUpperCase() },
-      });
-
-      if (!coupon || !coupon.isActive) return badRequest("Geçersiz veya süresi dolmuş kupon.");
-      if (coupon.expiresAt && coupon.expiresAt < new Date()) return badRequest("Kuponun süresi dolmuş.");
-      if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) return badRequest("Kupon kullanım limiti dolmuş.");
-      if (coupon.minOrder && data.subtotal < coupon.minOrder) {
-        return badRequest(`Bu kupon için minimum sipariş tutarı ${coupon.minOrder} ₺'dir.`);
-      }
-    }
-
-    const productIdMap = new Map<string, string>();
+    const canonicalItems: Array<{
+      productId: string;
+      productName: string;
+      variant?: string;
+      price: number;
+      quantity: number;
+      total: number;
+    }> = [];
 
     for (const item of data.items) {
       const product = await ensureCatalogProductInDatabase(item.productId);
       if (!product || !product.isActive) {
         return badRequest(`"${item.productName}" ürünü artık mevcut değil.`);
       }
-      productIdMap.set(item.productId, product.id);
+
+      const selectedVariant = item.variantId
+        ? product.variants.find((variant) => variant.id === item.variantId)
+        : undefined;
+
+      if (item.variantId && !selectedVariant) {
+        return badRequest(`"${product.name}" için seçilen ürün seçeneği artık mevcut değil.`);
+      }
+
+      if (!item.variantId && product.variants.length > 0) {
+        return badRequest(`"${product.name}" için bir ürün seçeneği seçiniz.`);
+      }
+
+      const availableStock = selectedVariant?.stock ?? product.totalStock;
+      if (item.quantity > availableStock) {
+        return badRequest(`"${product.name}" için yeterli stok bulunmuyor.`);
+      }
+
+      const unitPrice = selectedVariant?.price ?? product.discountPrice ?? product.basePrice;
+      const lineTotal = Math.round(unitPrice * item.quantity * 100) / 100;
+
+      canonicalItems.push({
+        productId: product.id,
+        productName: product.name,
+        variant: selectedVariant?.weight,
+        price: unitPrice,
+        quantity: item.quantity,
+        total: lineTotal,
+      });
+    }
+
+    const subtotal = Math.round(
+      canonicalItems.reduce((sum, item) => sum + item.total, 0) * 100
+    ) / 100;
+    const shippingCost = calculateShippingCost(calculateTotalWeight(canonicalItems));
+
+    let discount = 0;
+    let couponCode: string | undefined;
+    if (data.couponCode) {
+      const couponValidation = await validateCouponForCart(data.couponCode, subtotal);
+      if (!couponValidation.ok) return badRequest(couponValidation.message);
+      discount = couponValidation.coupon.discountAmount;
+      couponCode = couponValidation.coupon.code;
+    }
+
+    const total = Math.round((subtotal + shippingCost - discount) * 100) / 100;
+    const submittedAmountsMatch =
+      Math.abs(data.subtotal - subtotal) <= 0.01 &&
+      Math.abs(data.shippingCost - shippingCost) <= 0.01 &&
+      Math.abs(data.discount - discount) <= 0.01 &&
+      Math.abs(data.total - total) <= 0.01 &&
+      data.items.every((item, index) => {
+        const canonical = canonicalItems[index];
+        return (
+          Math.abs(item.price - canonical.price) <= 0.01 &&
+          Math.abs(item.total - canonical.total) <= 0.01
+        );
+      });
+
+    if (!submittedAmountsMatch) {
+      return badRequest("Sepet fiyatları veya kargo tutarı güncellendi. Lütfen sepeti yenileyip tekrar deneyin.");
     }
 
     const orderNumber = generateOrderNumber();
-    const payment = await chargeCreditCard({
-      conversationId: orderNumber,
-      card: cardValidation.card,
-      customerName: contactValidation.normalized.customerName,
-      customerEmail: emailValidation.normalizedEmail,
-      customerPhone: contactValidation.normalized.customerPhone,
-      address: contactValidation.normalized.address,
-      city: contactValidation.normalized.city,
-      district: contactValidation.normalized.district,
-      postalCode: contactValidation.normalized.postalCode,
-      ip,
-      subtotal: data.subtotal,
-      shippingCost: data.shippingCost,
-      total: data.total,
-      items: data.items,
-    });
 
-    if (!payment.ok) {
-      return badRequest(payment.message);
-    }
-
+    // Create the order as PENDING/WAITING before getting the token
     const order = await prisma.order.create({
       data: {
         orderNumber,
-        status: "CONFIRMED",
-        paymentStatus: "PAID",
+        status: "PENDING",
+        paymentStatus: "WAITING",
         customerName: contactValidation.normalized.customerName,
         customerEmail: emailValidation.normalizedEmail,
         customerPhone: contactValidation.normalized.customerPhone,
@@ -234,16 +255,17 @@ export async function POST(req: NextRequest) {
         district: contactValidation.normalized.district,
         postalCode: contactValidation.normalized.postalCode || "",
         notes: data.notes,
-        paymentMethod: data.paymentMethod,
-        subtotal: data.subtotal,
-        shippingCost: data.shippingCost,
-        discount: data.discount,
-        total: data.total,
-        iyzipayToken: payment.paymentId,
-        couponCode: data.couponCode,
+        // PayTR is the payment provider; the customer's payment method is card.
+        // The existing database enum stores card payments as CREDIT_CARD.
+        paymentMethod: "CREDIT_CARD",
+        subtotal,
+        shippingCost,
+        discount,
+        total,
+        couponCode,
         items: {
-          create: data.items.map((item) => ({
-            productId: productIdMap.get(item.productId) || item.productId,
+          create: canonicalItems.map((item) => ({
+            productId: item.productId,
             productName: item.productName,
             variant: item.variant,
             price: item.price,
@@ -254,31 +276,54 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (data.couponCode) {
-      await prisma.coupon
-        .update({
-          where: { code: data.couponCode.toUpperCase() },
-          data: { usedCount: { increment: 1 } },
-        })
-        .catch(console.error);
+    // Request token from PayTR
+    let paytr;
+    try {
+      paytr = await getPaytrToken({
+        orderNumber,
+        email: emailValidation.normalizedEmail,
+        total,
+        items: canonicalItems.map((item) => ({
+          name: item.productName,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+        customerName: contactValidation.normalized.customerName,
+        customerAddress: `${contactValidation.normalized.address}, ${contactValidation.normalized.district}/${contactValidation.normalized.city}`,
+        customerPhone: contactValidation.normalized.customerPhone,
+        ip,
+      });
+    } catch (error) {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { status: "CANCELLED", paymentStatus: "FAILED" },
+      });
+      throw error;
     }
 
-    sendOrderConfirmationEmail({
-      to: emailValidation.normalizedEmail,
-      customerName: contactValidation.normalized.customerName,
-      orderNumber,
-      total: data.total,
-      items: data.items,
-    }).catch(console.error);
-
-    return NextResponse.json(
-      {
-        success: true,
-        orderNumber: order.orderNumber,
-        orderId: order.id,
-      },
-      { status: 201 }
-    );
+    if (paytr.status === "success") {
+      return NextResponse.json(
+        {
+          success: true,
+          orderNumber: order.orderNumber,
+          orderId: order.id,
+          token: paytr.token
+        },
+        { status: 201 }
+      );
+    } else {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          status: "CANCELLED",
+          paymentStatus: "FAILED",
+          notes:
+            (order.notes ? `${order.notes}\n\n` : "") +
+            `PayTR token hatası: ${paytr.reason || "Bilinmeyen hata"}`,
+        },
+      });
+      return badRequest("Ödeme altyapısı ile iletişim kurulamadı: " + (paytr.reason || "Bilinmeyen hata"));
+    }
   } catch (error) {
     if (error instanceof ZodError) {
       const firstMsg = error.errors[0]?.message || "Geçersiz sipariş verisi.";

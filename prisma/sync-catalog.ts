@@ -65,7 +65,6 @@ async function main() {
         isBestSeller: catalogProduct.isBestSeller,
         isNew: catalogProduct.isNew,
         isActive: catalogProduct.isActive,
-        totalStock,
         categoryId,
         metaTitle: catalogProduct.metaTitle,
         metaDescription: catalogProduct.metaDescription,
@@ -93,17 +92,21 @@ async function main() {
       },
     });
 
-    await prisma.productVariant.deleteMany({ where: { productId: product.id } });
-
-    if (catalogProduct.variants.length > 0) {
-      await prisma.productVariant.createMany({
-        data: catalogProduct.variants.map((variant) => ({
+    for (const variant of catalogProduct.variants) {
+      await prisma.productVariant.upsert({
+        where: { sku: variant.sku },
+        update: {
+          productId: product.id,
+          weight: variant.weight,
+          price: variant.price,
+        },
+        create: {
           productId: product.id,
           weight: variant.weight,
           price: variant.price,
           stock: variant.stock,
           sku: variant.sku,
-        })),
+        },
       });
     }
   }

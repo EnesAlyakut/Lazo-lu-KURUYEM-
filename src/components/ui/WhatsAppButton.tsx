@@ -12,7 +12,9 @@ export default function WhatsAppButton() {
 
   if (!mounted) return null;
 
-  const number = "905416490883";
+  const number =
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/[^0-9]/g, "") ||
+    "905424415632";
   const message = encodeURIComponent(
     "Merhaba LAZOĞLU KURUYEMİŞ! Ürünleriniz hakkında bilgi almak istiyorum."
   );

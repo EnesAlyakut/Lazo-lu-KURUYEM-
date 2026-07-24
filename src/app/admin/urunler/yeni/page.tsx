@@ -15,6 +15,7 @@ import {
   Star,
   Loader2,
   Wand2,
+  Hash,
 } from "lucide-react";
 
 interface Category {
@@ -29,6 +30,8 @@ interface Variant {
   stock: number;
 }
 
+const DEFAULT_WEIGHTS = ["250g", "500g", "1kg"];
+
 export default function YeniUrunPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -38,9 +41,11 @@ export default function YeniUrunPage() {
   const [images, setImages] = useState<string[]>([]);
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [variants, setVariants] = useState<Variant[]>([
-    { weight: "250g", price: 0, stock: 0 },
-  ]);
+
+  // Gramajlı ürünler için varyantlar (leblebi, kaju vb.)
+  const [variants, setVariants] = useState<Variant[]>(
+    DEFAULT_WEIGHTS.map((w) => ({ weight: w, price: 0, stock: 0 }))
+  );
 
   const [form, setForm] = useState({
     name: "",
@@ -57,14 +62,18 @@ export default function YeniUrunPage() {
     isBestSeller: false,
     isNew: false,
     isActive: true,
-    totalStock: "",
+    totalStock: "",   // Hediyelik eşya için adet
     metaTitle: "",
     metaDescription: "",
   });
 
-  // Seçili kategorinin slug'ı - form state'inden sonra tanımlanmalı
   const selectedCategory = categories.find((c) => c.id === form.categoryId);
   const isGiftBox = selectedCategory?.slug === "hediyelik-kutu";
+
+  // Toplam stok hesabı
+  const totalStock = isGiftBox
+    ? parseInt(form.totalStock, 10) || 0
+    : variants.reduce((s, v) => s + Number(v.stock), 0);
 
   useEffect(() => {
     setMounted(true);
@@ -93,7 +102,8 @@ export default function YeniUrunPage() {
     }
   };
 
-  const removeImage = (i: number) => setImages((prev) => prev.filter((_, idx) => idx !== i));
+  const removeImage = (i: number) =>
+    setImages((prev) => prev.filter((_, idx) => idx !== i));
 
   const addVariant = () =>
     setVariants((prev) => [...prev, { weight: "", price: 0, stock: 0 }]);
@@ -126,10 +136,6 @@ export default function YeniUrunPage() {
     }
   };
 
-  const totalStock = isGiftBox
-    ? parseInt(form.totalStock, 10) || 0
-    : variants.reduce((s, v) => s + Number(v.stock), 0);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.categoryId) return alert("Lütfen bir kategori seçin.");
@@ -146,6 +152,7 @@ export default function YeniUrunPage() {
           discountPrice: form.discountPrice ? parseFloat(form.discountPrice) : null,
           images,
           totalStock,
+          // Hediyelik eşyada varyant gönderilmez
           variants: isGiftBox ? [] : variants,
         }),
       });
@@ -238,13 +245,11 @@ export default function YeniUrunPage() {
                 onChange={(e) => {
                   const newCatId = e.target.value;
                   const newCat = categories.find((c) => c.id === newCatId);
-                  // Hediyelik kutu seçilince varyantları sıfırla
-                  if (newCat?.slug === "hediyelik-kutu") {
-                    setVariants([]);
-                  } else if (variants.length === 0) {
-                    setVariants([{ weight: "250g", price: 0, stock: 0 }]);
+                  // Kategori değişince varyantları sıfırla
+                  if (newCat?.slug !== "hediyelik-kutu") {
+                    setVariants(DEFAULT_WEIGHTS.map((w) => ({ weight: w, price: 0, stock: 0 })));
                   }
-                  setForm((f) => ({ ...f, categoryId: newCatId }));
+                  setForm((f) => ({ ...f, categoryId: newCatId, totalStock: "" }));
                 }}
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
               >
@@ -254,9 +259,15 @@ export default function YeniUrunPage() {
                 ))}
               </select>
               {isGiftBox && (
-                <p className="mt-1.5 text-xs text-amber-600 flex items-center gap-1">
-                  <span>🎁</span>
-                  Hediyelik Kutu kategorisinde gramaj varyantı kullanılmaz.
+                <p className="mt-1.5 text-xs text-blue-600 flex items-center gap-1">
+                  <Hash size={12} />
+                  Hediyelik eşya: Gramaj yoktur, sadece stok adedi girilir.
+                </p>
+              )}
+              {!isGiftBox && form.categoryId && (
+                <p className="mt-1.5 text-xs text-brand-600 flex items-center gap-1">
+                  <Tag size={12} />
+                  250g, 500g ve 1kg gramaj seçenekleri için fiyat & stok girebilirsiniz.
                 </p>
               )}
             </div>
@@ -291,6 +302,24 @@ export default function YeniUrunPage() {
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
               />
             </div>
+
+            {/* Hediyelik eşya: sadece adet girişi */}
+            {isGiftBox && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Stok Adedi *
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="0"
+                  value={form.totalStock}
+                  onChange={(e) => setForm((f) => ({ ...f, totalStock: e.target.value }))}
+                  placeholder="Kaç adet var?"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+                />
+              </div>
+            )}
 
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -367,7 +396,6 @@ export default function YeniUrunPage() {
             </Link>
           </div>
 
-          {/* Gizli dosya input */}
           <input
             ref={fileInputRef}
             type="file"
@@ -377,7 +405,6 @@ export default function YeniUrunPage() {
             onChange={(e) => handleFileUpload(e.target.files)}
           />
 
-          {/* URL + Ekle butonu */}
           <div className="flex gap-2 mb-4">
             <input
               type="url"
@@ -390,20 +417,13 @@ export default function YeniUrunPage() {
             <button
               type="button"
               onClick={() => {
-                if (imageUrl.trim()) {
-                  addImage();
-                } else {
-                  fileInputRef.current?.click();
-                }
+                if (imageUrl.trim()) addImage();
+                else fileInputRef.current?.click();
               }}
               disabled={uploadingImage}
               className="px-4 py-2.5 bg-brand-500 text-white rounded-xl text-sm font-medium hover:bg-brand-600 disabled:opacity-60 transition-colors flex items-center gap-1.5"
             >
-              {uploadingImage ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <Plus size={16} />
-              )}
+              {uploadingImage ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
               {uploadingImage ? "Yükleniyor..." : "Ekle"}
             </button>
           </div>
@@ -411,7 +431,6 @@ export default function YeniUrunPage() {
             URL boşsa butona basınca bilgisayarından görsel seçebilirsin · JPG, PNG, WebP · Max 5MB
           </p>
 
-          {/* Görsel önizleme */}
           {images.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {images.map((img, i) => (
@@ -446,30 +465,37 @@ export default function YeniUrunPage() {
           )}
         </div>
 
-        {/* Varyantlar - Hediyelik Kutu kategorisinde gizle */}
-        {!isGiftBox && (
+        {/* Gramaj Varyantları — Sadece hediyelik DIŞI kategorilerde göster */}
+        {!isGiftBox && form.categoryId && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
                 <Tag size={18} className="text-brand-500" />
-                <h2 className="font-semibold text-gray-900">Gramaj Varyantları</h2>
+                <h2 className="font-semibold text-gray-900">Gramaj & Fiyat Seçenekleri</h2>
               </div>
               <button
                 type="button"
                 onClick={addVariant}
                 className="text-sm text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1"
               >
-                <Plus size={15} /> Varyant Ekle
+                <Plus size={15} /> Seçenek Ekle
               </button>
             </div>
+
             <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-3 mb-1">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Gramaj</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Fiyat (₺)</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Stok Adedi</p>
+              </div>
+
               {variants.map((v, i) => (
                 <div key={i} className="grid grid-cols-3 gap-3 items-center">
                   <input
                     type="text"
                     value={v.weight}
                     onChange={(e) => updateVariant(i, "weight", e.target.value)}
-                    placeholder="250g"
+                    placeholder="örn: 250g"
                     className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
                   />
                   <input
@@ -502,12 +528,8 @@ export default function YeniUrunPage() {
                   </div>
                 </div>
               ))}
-              <div className="grid grid-cols-3 gap-3 mt-1">
-                <p className="text-xs text-gray-400">Gramaj</p>
-                <p className="text-xs text-gray-400">Fiyat (₺)</p>
-                <p className="text-xs text-gray-400">Stok Adedi</p>
-              </div>
             </div>
+
             <p className="text-sm text-gray-500 mt-3">
               Toplam stok: <span className="font-semibold text-gray-800">{totalStock} adet</span>
             </p>
@@ -522,11 +544,11 @@ export default function YeniUrunPage() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
             {[
-              { key: "isActive", label: "Aktif", color: "green" },
-              { key: "isNatural", label: "Doğal", color: "emerald" },
-              { key: "isFeatured", label: "Öne Çıkan", color: "blue" },
-              { key: "isBestSeller", label: "Çok Satan", color: "amber" },
-              { key: "isNew", label: "Yeni", color: "purple" },
+              { key: "isActive", label: "Aktif" },
+              { key: "isNatural", label: "Doğal" },
+              { key: "isFeatured", label: "Öne Çıkan" },
+              { key: "isBestSeller", label: "Çok Satan" },
+              { key: "isNew", label: "Yeni" },
             ].map(({ key, label }) => (
               <label
                 key={key}
@@ -539,9 +561,7 @@ export default function YeniUrunPage() {
                 <input
                   type="checkbox"
                   checked={form[key as keyof typeof form] as boolean}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, [key]: e.target.checked }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.checked }))}
                   className="rounded text-brand-500"
                 />
                 <span className="text-sm font-medium text-gray-700">{label}</span>

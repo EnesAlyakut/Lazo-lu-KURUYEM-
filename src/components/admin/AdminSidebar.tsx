@@ -16,8 +16,10 @@ import {
   Tag,
   Users,
   X,
+  MessageSquare,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import AdminNotifications from "@/components/admin/AdminNotifications";
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -28,6 +30,7 @@ const navItems = [
   { label: "Blog", href: "/admin/blog", icon: BookOpen },
   { label: "Kuponlar", href: "/admin/kuponlar", icon: Tag },
   { label: "E-Bülten", href: "/admin/ebulten", icon: Users },
+  { label: "Yorumlar", href: "/admin/yorumlar", icon: MessageSquare },
 ];
 
 function SidebarContent({
@@ -47,14 +50,15 @@ function SidebarContent({
           onClick={onLinkClick}
           className="flex min-h-[58px] items-center gap-3 rounded-xl px-1 transition-colors hover:bg-white/[0.03]"
         >
-          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_10px_25px_rgba(0,0,0,0.25)]">
+          <div className="relative flex h-[68px] w-[68px] shrink-0 items-center justify-center overflow-hidden rounded-full shadow-[0_10px_25px_rgba(0,0,0,0.25)]">
             <Image
               src="/images/logo_circular.png"
               alt="LAZOĞLU KURUYEMİŞ"
               fill
-              className="object-contain p-[3px]"
-              sizes="48px"
+              className="object-contain"
+              sizes="68px"
               priority
+              quality={100}
             />
           </div>
           <div className="min-w-0">
@@ -91,6 +95,7 @@ function SidebarContent({
       </nav>
 
       <div className="space-y-1 border-t border-gray-800 p-3">
+        <AdminNotifications />
         <Link href="/" target="_blank" className="admin-sidebar-link text-sm">
           <Package size={16} />
           Siteyi Görüntüle
@@ -136,14 +141,15 @@ export default function AdminSidebar() {
 
       <div className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between bg-gray-900 px-4 py-3 shadow-lg lg:hidden">
         <Link href="/admin" className="flex min-w-0 items-center gap-2">
-          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_8px_18px_rgba(0,0,0,0.22)]">
+          <div className="relative flex h-[52px] w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full shadow-[0_8px_18px_rgba(0,0,0,0.22)]">
             <Image
               src="/images/logo_circular.png"
               alt="LAZOĞLU KURUYEMİŞ"
               fill
-              className="object-contain p-[3px]"
-              sizes="40px"
+              className="object-contain"
+              sizes="52px"
               priority
+              quality={100}
             />
           </div>
           <span className="truncate text-sm font-bold text-white">
@@ -153,10 +159,10 @@ export default function AdminSidebar() {
         <button
           type="button"
           onClick={() => setMobileOpen((open) => !open)}
-          className="text-white"
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-800 text-white transition-colors hover:bg-gray-700 active:bg-gray-600"
           aria-label="Menü"
         >
-          {mounted && mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          {mounted && mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 

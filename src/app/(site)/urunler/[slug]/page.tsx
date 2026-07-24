@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { withoutBrandSuffix } from "@/lib/metadata";
 import ProductDetailClient from "./ProductDetailClient";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 function toStringArray(value: unknown): string[] {
@@ -26,6 +27,13 @@ async function getProduct(slug: string) {
       reviews: {
         where: { isApproved: true },
         orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          authorName: true,
+          rating: true,
+          comment: true,
+          createdAt: true,
+        },
       },
     },
   });
@@ -34,12 +42,13 @@ async function getProduct(slug: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const product = await getProduct(params.slug);
+  const { slug } = await params;
+  const product = await getProduct(slug);
 
   if (!product) return { title: "Urun Bulunamadi" };
 
   return {
-    title: product.metaTitle || `${product.name} | LAZOĞLU KURUYEMİŞ`,
+    title: withoutBrandSuffix(product.metaTitle || product.name),
     description:
       product.metaDescription || product.description.substring(0, 155),
     openGraph: {
@@ -51,7 +60,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductDetailPage({ params }: Props) {
-  const product = await getProduct(params.slug);
+  const { slug } = await params;
+  const product = await getProduct(slug);
 
   if (!product) notFound();
 

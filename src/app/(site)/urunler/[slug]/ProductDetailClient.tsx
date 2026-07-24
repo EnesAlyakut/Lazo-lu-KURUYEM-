@@ -31,7 +31,12 @@ export default function ProductDetailClient({
   related: any[];
 }) {
   const addItem = useCartStore((state) => state.addItem);
-  const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
+  const isGiftBox = product.category?.slug === "hediyelik-kutu";
+  const hasVariants = !isGiftBox && product.variants && product.variants.length > 0;
+
+  const [selectedVariant, setSelectedVariant] = useState(
+    hasVariants ? product.variants[0] : null
+  );
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [reviewForm, setReviewForm] = useState({
@@ -42,8 +47,12 @@ export default function ProductDetailClient({
   });
   const [submittingReview, setSubmittingReview] = useState(false);
 
-  const price = selectedVariant?.price || product.discountPrice || product.basePrice;
-  const hasDiscount = !!product.discountPrice && !selectedVariant;
+  const price = selectedVariant?.price
+    ? selectedVariant.price
+    : product.discountPrice || product.basePrice;
+
+  const hasDiscount = !!product.discountPrice && !selectedVariant?.price;
+
   const avgRating =
     product.reviews.length > 0
       ? product.reviews.reduce((s: number, r: any) => s + r.rating, 0) /
@@ -197,9 +206,37 @@ export default function ProductDetailClient({
                   {product.basePrice.toFixed(2)} ₺
                 </span>
               )}
+              {selectedVariant && (
+                <span className="text-sm text-gray-500 mb-1">
+                  ({selectedVariant.weight})
+                </span>
+              )}
             </div>
 
-            {/* Varyant (Seçenek Seçin) bölümü kullanıcının isteği üzerine kaldırılmıştır */}
+            {/* Gramaj Seçimi - Variantlar varsa göster */}
+            {hasVariants && (
+              <div className="mb-6">
+                <p className="font-semibold text-gray-700 mb-3">Gramaj Seçin:</p>
+                <div className="flex flex-wrap gap-2">
+                  {product.variants.map((variant: any) => (
+                    <button
+                      key={variant.id}
+                      onClick={() => setSelectedVariant(variant)}
+                      className={`px-4 py-2 rounded-xl border-2 text-sm font-semibold transition-all ${
+                        selectedVariant?.id === variant.id
+                          ? "border-brand-500 bg-brand-50 text-brand-700"
+                          : "border-gray-200 text-gray-600 hover:border-brand-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      <span className="block">{variant.weight}</span>
+                      <span className="block text-xs font-bold text-brand-600">
+                        {variant.price.toFixed(2)} ₺
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Quantity */}
             <div className="flex items-center gap-4 mb-6">
@@ -285,7 +322,7 @@ export default function ProductDetailClient({
           </div>
         </div>
 
-        {/* Description & Reviews Tabs */}
+        {/* Description */}
         <div className="card p-4 sm:p-6 mb-8">
           <h2 className="mb-4 text-xl font-bold text-gray-900">
             Ürün Açıklaması
@@ -437,4 +474,3 @@ export default function ProductDetailClient({
     </div>
   );
 }
-
