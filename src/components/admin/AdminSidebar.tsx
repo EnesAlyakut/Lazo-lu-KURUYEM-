@@ -31,6 +31,7 @@ const navItems = [
   { label: "Kuponlar", href: "/admin/kuponlar", icon: Tag },
   { label: "E-Bülten", href: "/admin/ebulten", icon: Users },
   { label: "Yorumlar", href: "/admin/yorumlar", icon: MessageSquare },
+  { label: "Mesajlar", href: "/admin/mesajlar", icon: MessageSquare },
 ];
 
 function SidebarContent({

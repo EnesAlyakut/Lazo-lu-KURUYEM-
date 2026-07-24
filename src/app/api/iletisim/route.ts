@@ -3,6 +3,7 @@ import { apiRateLimit } from "@/lib/rateLimit";
 import { tooManyRequests } from "@/lib/apiErrors";
 import { sendContactMessage } from "@/lib/email";
 import { z } from "zod";
+import prisma from "@/lib/prisma";
 
 const iletisimSchema = z.object({
   name: z.string().min(2, "Ad soyad en az 2 karakter olmalıdır.").max(100),
@@ -21,11 +22,22 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const data = iletisimSchema.parse(body);
 
+    // Mesajı veritabanına kaydet
+    await prisma.contactMessage.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        subject: data.subject || null,
+        message: data.message,
+      },
+    });
+
     const sent = await sendContactMessage(data);
     if (!sent) {
       return NextResponse.json(
-        { message: "İletişim e-postası yapılandırılmamış. Lütfen telefon veya WhatsApp üzerinden ulaşın." },
-        { status: 503 }
+        { message: "Mesajınız alındı ancak e-posta bildirimi gönderilemedi. Yönetici panelinden görülebilir." },
+        { status: 200 }
       );
     }
 
