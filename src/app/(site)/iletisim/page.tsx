@@ -79,7 +79,7 @@ export default function IletisimPage() {
               </div>
             </a>
             <a
-              href="mailto:alperguun999@gmail.com"
+              href="mailto:lazoglukuruyemis19@gmail.com"
               className="flex items-start sm:items-center gap-4 p-4 sm:p-5 bg-white rounded-2xl border border-sky-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
             >
               <div className="w-14 h-14 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-sky-100 transition-colors">
@@ -87,7 +87,7 @@ export default function IletisimPage() {
               </div>
               <div>
                 <p className="text-xs font-semibold text-sky-500 uppercase tracking-wider mb-0.5">E-Posta</p>
-                <p className="font-bold text-gray-900">alperguun999@gmail.com</p>
+                <p className="font-bold text-gray-900">lazoglukuruyemis19@gmail.com</p>
               </div>
             </a>
             <div className="flex items-start sm:items-center gap-4 p-4 sm:p-5 bg-white rounded-2xl border border-amber-100 shadow-sm">
