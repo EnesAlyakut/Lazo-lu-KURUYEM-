@@ -3,7 +3,7 @@ import { apiRateLimit } from "@/lib/rateLimit";
 import { tooManyRequests } from "@/lib/apiErrors";
 import { sendContactMessage } from "@/lib/email";
 import { z } from "zod";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 const iletisimSchema = z.object({
   name: z.string().min(2, "Ad soyad en az 2 karakter olmalıdır.").max(100),

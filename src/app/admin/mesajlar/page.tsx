@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 
