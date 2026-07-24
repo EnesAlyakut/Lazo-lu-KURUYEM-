@@ -22,6 +22,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: https://${SITE_DOMAIN}
+        NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME:-LAZOĞLU KURUYEMİŞ}
+        NEXT_PUBLIC_WHATSAPP_NUMBER: ${NEXT_PUBLIC_WHATSAPP_NUMBER:-}
+        NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:-}
+        NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${NEXT_PUBLIC_VAPID_PUBLIC_KEY:-}
     restart: unless-stopped
     env_file: [.env]
     environment:
