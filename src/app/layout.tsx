@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "your-google-verification-code",
+    google: "xB1Dw02SdtgqoDJHBoVoZVlFmz9NhH37OSKbdmSoV7A",
   },
   alternates: {
     canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://lazoglukuruyemis.com",
