@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   title: "İletişim Mesajları | Admin",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminMesajlarPage() {
   const mesajlar = await prisma.contactMessage.findMany({
     orderBy: { createdAt: "desc" },
