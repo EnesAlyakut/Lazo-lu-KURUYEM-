@@ -167,9 +167,7 @@ h6 {
   }
 
   .product-card-image {
-    @apply relative overflow-hidden;
-    aspect-ratio: 4 / 3;
-    background: linear-gradient(145deg, #faf8f5 0%, #f0e9e1 100%);
+    @apply relative overflow-hidden bg-gray-50;
   }
 
   .product-card-image img {

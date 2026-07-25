@@ -91,7 +91,8 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/urunler/${product.slug}`} className="product-card group block h-full">
-      <div className="product-card-image relative overflow-hidden">
+      {/* Görsel alanı */}
+      <div className="relative overflow-hidden w-full h-52 sm:h-56">
         {images.map((img, idx) => (
           <div 
             key={idx} 
