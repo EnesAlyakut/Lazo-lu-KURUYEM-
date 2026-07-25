@@ -317,7 +317,7 @@ export async function sendReplyEmail(data: {
     await transporter.sendMail({
       from: sender(),
       to: data.to,
-      subject: \`Mesajınıza Yanıt | \${brandName}\`,
+      subject: `Mesajınıza Yanıt | ${brandName}`,
       html,
     });
     return true;
