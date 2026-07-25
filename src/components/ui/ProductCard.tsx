@@ -91,39 +91,39 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/urunler/${product.slug}`} className="product-card group block h-full">
-      <div className="product-card-image relative overflow-hidden">
-        <div 
-          className="flex transition-transform duration-500 ease-in-out h-full"
-          style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
-        >
-          {images.map((img, idx) => (
-            <div key={idx} className="relative w-full h-full shrink-0">
-              <Image
-                src={img}
-                alt={`${product.name} - ${idx + 1}`}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
-            </div>
-          ))}
-        </div>
+      <div className="product-card-image relative overflow-hidden h-[200px] sm:h-[240px]">
+        {images.map((img, idx) => (
+          <div 
+            key={idx} 
+            className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${
+              idx === currentImageIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+            }`}
+          >
+            <Image
+              src={img}
+              alt={`${product.name} - ${idx + 1}`}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            />
+          </div>
+        ))}
         
         {images.length > 1 && (
           <>
             <button 
               onClick={handlePrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-800 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-800 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-20"
             >
               <ChevronLeft size={16} />
             </button>
             <button 
               onClick={handleNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-800 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-800 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-20"
             >
               <ChevronRight size={16} />
             </button>
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-20">
               {images.map((_, idx) => (
                 <div 
                   key={idx} 
@@ -134,7 +134,7 @@ export function ProductCard({ product }: { product: Product }) {
           </>
         )}
 
-        <div className="absolute left-2 top-2 flex flex-col gap-1 sm:left-3 sm:top-3 sm:gap-1.5">
+        <div className="absolute left-2 top-2 flex flex-col gap-1 sm:left-3 sm:top-3 sm:gap-1.5 z-20">
           {hasDiscount && <span className="badge-discount">-%{discountPercent}</span>}
           {product.isNew && <span className="badge-new">Yeni</span>}
           {product.isBestSeller && (
@@ -146,7 +146,7 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         {product.isNatural && (
-          <div className="absolute right-2 top-2 hidden min-[380px]:block sm:right-3 sm:top-3">
+          <div className="absolute right-2 top-2 hidden min-[380px]:block sm:right-3 sm:top-3 z-20">
             <span className="badge-natural">
               <Leaf size={10} />
               Doğal
@@ -156,7 +156,7 @@ export function ProductCard({ product }: { product: Product }) {
 
         <button
           onClick={handleAddToCart}
-          className="btn-primary absolute bottom-3 left-1/2 hidden -translate-x-1/2 whitespace-nowrap px-3 py-2 text-xs opacity-100 shadow-lg transition-all duration-300 sm:inline-flex sm:translate-y-2 sm:px-4 sm:text-sm sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100"
+          className="btn-primary absolute bottom-3 left-1/2 hidden -translate-x-1/2 whitespace-nowrap px-3 py-2 text-xs opacity-100 shadow-lg transition-all duration-300 sm:inline-flex sm:translate-y-2 sm:px-4 sm:text-sm sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 z-20"
         >
           <ShoppingCart size={14} />
           Sepete Ekle
