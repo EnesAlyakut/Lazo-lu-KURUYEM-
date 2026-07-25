@@ -288,3 +288,41 @@ export async function sendDiscountAnnouncementEmail(data: DiscountAnnouncementEm
     console.error("Discount announcement email send error:", error);
   }
 }
+
+export async function sendReplyEmail(data: {
+  to: string;
+  name: string;
+  originalMessage: string;
+  replyMessage: string;
+}) {
+  if (!canSendEmail()) return false;
+
+  const html = layout(
+    brandName,
+    "Mesajınıza Yanıt",
+    `
+      <p style="color: #333; font-size: 16px;">Merhaba <strong>${escapeHtml(data.name)}</strong>,</p>
+      <p style="color: #666; line-height: 1.6;">Bizimle iletişime geçtiğiniz için teşekkür ederiz. Mesajınıza yanıtımız aşağıdadır:</p>
+      <div style="background: #fdf8ed; border-radius: 12px; padding: 18px; margin: 20px 0; border-left: 4px solid #d4841a;">
+        <p style="margin: 0; color: #444; font-size: 14px; white-space: pre-wrap;">${escapeHtml(data.replyMessage)}</p>
+      </div>
+      <p style="color: #666; font-size: 14px; margin-top: 20px;"><strong>Sizin Mesajınız:</strong></p>
+      <div style="background: #f9f9f9; border-radius: 8px; padding: 12px; margin: 10px 0;">
+        <p style="margin: 0; color: #888; font-size: 13px; white-space: pre-wrap; font-style: italic;">${escapeHtml(data.originalMessage)}</p>
+      </div>
+    `
+  );
+
+  try {
+    await transporter.sendMail({
+      from: sender(),
+      to: data.to,
+      subject: \`Mesajınıza Yanıt | \${brandName}\`,
+      html,
+    });
+    return true;
+  } catch (error) {
+    console.error("Reply email send error:", error);
+    return false;
+  }
+}
