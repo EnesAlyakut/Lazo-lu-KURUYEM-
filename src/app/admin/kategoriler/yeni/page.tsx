@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, Layers, ImageIcon } from "lucide-react";
+import { ArrowLeft, Save, Layers, ImageIcon, Upload } from "lucide-react";
 
 export default function YeniKategoriPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -30,6 +32,35 @@ export default function YeniKategoriPage() {
     setForm((f) => ({ ...f, name: val, slug: slugify(val) }));
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || err.error || "Görsel yüklenemedi");
+      }
+
+      const data = await res.json();
+      setForm((f) => ({ ...f, image: data.url }));
+    } catch (err: any) {
+      alert(err.message || "Bir hata oluştu");
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -49,7 +80,7 @@ export default function YeniKategoriPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || "Kategori oluşturulamadı");
+        throw new Error(err.message || err.error || "Kategori oluşturulamadı");
       }
 
       router.push("/admin/kategoriler");
@@ -151,17 +182,40 @@ export default function YeniKategoriPage() {
             <ImageIcon size={18} className="text-brand-500" />
             <h2 className="font-semibold text-gray-900">Kategori Görseli</h2>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Görsel URL
-            </label>
-            <input
-              type="url"
-              value={form.image}
-              onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-              placeholder="https://example.com/gorsel.jpg (opsiyonel)"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
-            />
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Görsel URL
+              </label>
+              <input
+                type="url"
+                value={form.image}
+                onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
+                placeholder="https://example.com/gorsel.jpg (opsiyonel)"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                veya Bilgisayardan Seç
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingImage}
+                className="px-4 py-2.5 bg-gray-50 border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              >
+                <Upload size={16} />
+                {uploadingImage ? "Yükleniyor..." : "Görsel Seç"}
+              </button>
+            </div>
           </div>
           {form.image && (
             <div className="mt-3">

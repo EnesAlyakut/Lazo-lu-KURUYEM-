@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -46,6 +46,14 @@ export default function ProductDetailClient({
     comment: "",
   });
   const [submittingReview, setSubmittingReview] = useState(false);
+
+  useEffect(() => {
+    if (!product.images || product.images.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveImage((prev) => (prev + 1) % product.images.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [product.images]);
 
   const price = selectedVariant?.price
     ? selectedVariant.price

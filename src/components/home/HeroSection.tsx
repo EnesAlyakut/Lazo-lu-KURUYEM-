@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Gift, ShieldCheck, Star, Truck } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -25,11 +26,19 @@ export default function HeroSection() {
       {heroImages.map((src, index) => (
         <div
           key={src}
-          className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-[3000ms] ease-in-out ${
+          className={`absolute inset-0 transition-opacity duration-[3000ms] ease-in-out ${
             index === currentImageIndex ? "opacity-100" : "opacity-0"
           }`}
-          style={{ backgroundImage: `url('${src}')` }}
-        />
+        >
+          <Image
+            src={src}
+            alt="Lazoğlu Kuruyemiş Hero"
+            fill
+            priority={index === 0}
+            quality={90}
+            className="object-cover object-center"
+          />
+        </div>
       ))}
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,12,6,0.74)_0%,rgba(28,15,7,0.82)_48%,rgba(18,11,7,0.94)_100%)] sm:bg-[linear-gradient(90deg,rgba(18,10,5,0.93)_0%,rgba(28,15,7,0.82)_48%,rgba(28,15,7,0.38)_100%)]" />
 

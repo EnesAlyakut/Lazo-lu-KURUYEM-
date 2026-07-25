@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import CartProvider from "@/components/providers/CartProvider";
+import FloatingWhatsApp from "@/components/ui/FloatingWhatsApp";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -109,6 +110,7 @@ export default function RootLayout({
               },
             }}
           />
+          <FloatingWhatsApp />
         </CartProvider>
       </body>
     </html>

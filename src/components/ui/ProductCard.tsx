@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Star, Leaf, TrendingUp, Plus } from "lucide-react";
+import { ShoppingCart, Star, Leaf, TrendingUp, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import toast from "react-hot-toast";
+import { useState, useEffect } from "react";
 
 interface ProductVariant {
   id: string;
@@ -65,16 +66,73 @@ export function ProductCard({ product }: { product: Product }) {
     toast.success(`${product.name} sepete eklendi!`);
   };
 
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const images = product.images.length > 0 ? product.images : [FALLBACK_IMAGE];
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
   return (
     <Link href={`/urunler/${product.slug}`} className="product-card group block h-full">
-      <div className="product-card-image">
-        <Image
-          src={mainImage}
-          alt={product.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-        />
+      <div className="product-card-image relative overflow-hidden">
+        <div 
+          className="flex transition-transform duration-500 ease-in-out h-full"
+          style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+        >
+          {images.map((img, idx) => (
+            <div key={idx} className="relative w-full h-full shrink-0">
+              <Image
+                src={img}
+                alt={`${product.name} - ${idx + 1}`}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+            </div>
+          ))}
+        </div>
+        
+        {images.length > 1 && (
+          <>
+            <button 
+              onClick={handlePrev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-800 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button 
+              onClick={handleNext}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-800 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <ChevronRight size={16} />
+            </button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+              {images.map((_, idx) => (
+                <div 
+                  key={idx} 
+                  className={`h-1.5 rounded-full transition-all ${idx === currentImageIndex ? "w-3 bg-brand-500" : "w-1.5 bg-white/60"}`} 
+                />
+              ))}
+            </div>
+          </>
+        )}
 
         <div className="absolute left-2 top-2 flex flex-col gap-1 sm:left-3 sm:top-3 sm:gap-1.5">
           {hasDiscount && <span className="badge-discount">-%{discountPercent}</span>}
