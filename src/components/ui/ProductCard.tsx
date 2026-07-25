@@ -91,7 +91,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/urunler/${product.slug}`} className="product-card group block h-full">
-      <div className="product-card-image relative overflow-hidden h-[200px] sm:h-[240px]">
+      <div className="product-card-image relative overflow-hidden">
         {images.map((img, idx) => (
           <div 
             key={idx} 
@@ -103,7 +103,7 @@ export function ProductCard({ product }: { product: Product }) {
               src={img}
               alt={`${product.name} - ${idx + 1}`}
               fill
-              className="object-contain p-3 transition-transform duration-700 group-hover:scale-105"
+              className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           </div>
