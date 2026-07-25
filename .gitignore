@@ -52,7 +52,7 @@ nginx/ssl/*.crt
 nginx/ssl/*.key
 
 # Uploads
-public/uploads/
+# # public/uploads/
 
 # TypeScript
 *.tsbuildinfo
