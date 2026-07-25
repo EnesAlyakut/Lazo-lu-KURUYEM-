@@ -132,6 +132,7 @@ export default function ProductDetailClient({
                 src={product.images[activeImage] || "/images/leblebi-urun.png"}
                 alt={product.name}
                 fill
+                unoptimized={(product.images[activeImage] || "").startsWith("/uploads/")}
                 className="object-cover"
                 priority
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -157,7 +158,7 @@ export default function ProductDetailClient({
                         : "border-gray-200 hover:border-brand-300"
                     }`}
                   >
-                    <Image src={img} alt={`${product.name} ${i + 1}`} fill className="object-cover" />
+                    <Image src={img} alt={`${product.name} ${i + 1}`} fill unoptimized={img.startsWith("/uploads/")} className="object-cover" />
                   </button>
                 ))}
               </div>

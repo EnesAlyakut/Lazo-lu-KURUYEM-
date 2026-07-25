@@ -104,6 +104,7 @@ export function ProductCard({ product }: { product: Product }) {
               src={img}
               alt={`${product.name} - ${idx + 1}`}
               fill
+              unoptimized={img.startsWith("/uploads/")}
               className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
