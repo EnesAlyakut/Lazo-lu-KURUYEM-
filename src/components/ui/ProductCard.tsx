@@ -164,7 +164,7 @@ export function ProductCard({ product }: { product: Product }) {
         </button>
       </div>
 
-      <div className="flex min-h-[138px] flex-col p-2.5 sm:min-h-[168px] sm:p-4">
+      <div className="flex min-h-[138px] flex-col items-center text-center p-2.5 sm:min-h-[168px] sm:p-4">
         <p className="mb-1 truncate text-[11px] font-medium text-brand-600 sm:text-xs">
           {product.category.name}
         </p>
@@ -192,7 +192,7 @@ export function ProductCard({ product }: { product: Product }) {
         )}
 
         {product.variants.length > 0 && (
-          <div className="mb-2 flex gap-1 overflow-hidden sm:mb-3 sm:flex-wrap">
+          <div className="mb-2 flex justify-center gap-1 overflow-hidden w-full sm:mb-3 sm:flex-wrap">
             {product.variants.slice(0, 2).map((variant) => (
               <span
                 key={variant.id}
@@ -204,11 +204,11 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         )}
 
-        <div className="mt-auto flex items-end justify-between gap-1.5 sm:gap-2">
-          <div className="min-w-0">
+        <div className="mt-auto flex flex-col items-center gap-2 w-full pt-1 sm:pt-2">
+          <div className="w-full">
             <span className="price-current">{price.toFixed(2)} ₺</span>
             {hasDiscount && (
-              <span className="price-original ml-0 block sm:ml-2 sm:inline">
+              <span className="price-original ml-1 inline sm:ml-2">
                 {product.basePrice.toFixed(2)} ₺
               </span>
             )}
@@ -218,11 +218,11 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
           <button
             onClick={handleAddToCart}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-white shadow-sm transition-colors hover:bg-brand-700 sm:h-9 sm:w-9 sm:rounded-xl"
+            className="flex h-9 w-full items-center justify-center gap-2 rounded-lg bg-brand-600 text-white shadow-sm transition-colors hover:bg-brand-700 sm:h-10 sm:rounded-xl text-xs sm:text-sm font-medium"
             aria-label="Sepete ekle"
           >
-            <Plus size={16} className="sm:hidden" />
-            <ShoppingCart size={16} className="hidden sm:block" />
+            <ShoppingCart size={16} />
+            Sepete Ekle
           </button>
         </div>
       </div>
