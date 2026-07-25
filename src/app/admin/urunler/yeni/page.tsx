@@ -440,7 +440,10 @@ export default function YeniUrunPage() {
                     src={img}
                     alt={`Görsel ${i + 1}`}
                     className="w-full h-24 object-cover rounded-xl border border-gray-200"
-                    onError={(e) => (e.currentTarget.src = "/images/placeholder.png")}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null; // Prevent infinite loop
+                      e.currentTarget.src = "/images/logo.png";
+                    }}
                   />
                   <button
                     type="button"
