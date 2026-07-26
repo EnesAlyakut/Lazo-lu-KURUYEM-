@@ -91,7 +91,14 @@ export default function UrunDuzenlePage({
   });
 
   const selectedCategory = categories.find((c) => c.id === form.categoryId);
-  const isGiftBox = selectedCategory?.slug === "hediyelik-kutu";
+  const isGiftBox = selectedCategory ? (
+    selectedCategory.slug.includes("kutu") ||
+    selectedCategory.slug.includes("hediye") ||
+    selectedCategory.slug.includes("lokum") ||
+    selectedCategory.slug.includes("helva") ||
+    selectedCategory.slug.includes("pismaniye") ||
+    selectedCategory.slug.includes("ambalaj")
+  ) : false;
 
   // Toplam stok
   const totalStock = isGiftBox
@@ -120,7 +127,14 @@ export default function UrunDuzenlePage({
 
         // Eğer mevcut ürünün variantı yoksa ve hediyelik değilse varsayılan ekle
         const cat = categoryData.find((c) => c.id === product.categoryId);
-        const isGift = cat?.slug === "hediyelik-kutu";
+        const isGift = cat ? (
+          cat.slug.includes("kutu") ||
+          cat.slug.includes("hediye") ||
+          cat.slug.includes("lokum") ||
+          cat.slug.includes("helva") ||
+          cat.slug.includes("pismaniye") ||
+          cat.slug.includes("ambalaj")
+        ) : false;
 
         if (!isGift && (!product.variants || product.variants.length === 0)) {
           setVariants(DEFAULT_WEIGHTS.map((w) => ({ weight: w, price: 0, stock: 0 })));
@@ -214,7 +228,7 @@ export default function UrunDuzenlePage({
           discountPrice: form.discountPrice ? parseFloat(form.discountPrice) : null,
           images,
           totalStock,
-          // Hediyelik eşyada varyant gönderilmez
+          // Adetli ürünlerde varyant gönderilmez
           variants: isGiftBox ? [] : variants,
         }),
       });
@@ -303,8 +317,14 @@ export default function UrunDuzenlePage({
                 value={form.categoryId}
                 onChange={(e) => {
                   const cat = categories.find((c) => c.id === e.target.value);
-                  // Hediyelik'e geçince variantları temizle
-                  if (cat?.slug === "hediyelik-kutu") {
+                  if (cat && (
+                    cat.slug.includes("kutu") ||
+                    cat.slug.includes("hediye") ||
+                    cat.slug.includes("lokum") ||
+                    cat.slug.includes("helva") ||
+                    cat.slug.includes("pismaniye") ||
+                    cat.slug.includes("ambalaj")
+                  )) {
                     setVariants([]);
                   } else if (variants.length === 0) {
                     setVariants(DEFAULT_WEIGHTS.map((w) => ({ weight: w, price: 0, stock: 0 })));
@@ -321,7 +341,7 @@ export default function UrunDuzenlePage({
               {isGiftBox && (
                 <p className="mt-1.5 text-xs text-blue-600 flex items-center gap-1">
                   <Hash size={12} />
-                  Hediyelik eşya: Gramaj yoktur, sadece stok adedi girilir.
+                  Adetli Ürün: Gramaj yoktur, sadece stok adedi girilir (Örn: Lokum, Helva, Kutu).
                 </p>
               )}
               {!isGiftBox && form.categoryId && (
@@ -362,7 +382,7 @@ export default function UrunDuzenlePage({
               />
             </div>
 
-            {/* Hediyelik eşya: sadece adet */}
+            {/* Adetli ürünler: sadece adet */}
             {isGiftBox && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -520,7 +540,7 @@ export default function UrunDuzenlePage({
           )}
         </div>
 
-        {/* Gramaj Varyantları — Sadece hediyelik DIŞI kategorilerde */}
+        {/* Gramaj Varyantları — Sadece adetli OLMAYAN kategorilerde */}
         {!isGiftBox && form.categoryId && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <div className="flex items-center justify-between mb-5">

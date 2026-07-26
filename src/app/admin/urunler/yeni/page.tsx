@@ -68,7 +68,14 @@ export default function YeniUrunPage() {
   });
 
   const selectedCategory = categories.find((c) => c.id === form.categoryId);
-  const isGiftBox = selectedCategory?.slug === "hediyelik-kutu";
+  const isGiftBox = selectedCategory ? (
+    selectedCategory.slug.includes("kutu") ||
+    selectedCategory.slug.includes("hediye") ||
+    selectedCategory.slug.includes("lokum") ||
+    selectedCategory.slug.includes("helva") ||
+    selectedCategory.slug.includes("pismaniye") ||
+    selectedCategory.slug.includes("ambalaj")
+  ) : false;
 
   // Toplam stok hesabı
   const totalStock = isGiftBox
@@ -152,7 +159,7 @@ export default function YeniUrunPage() {
           discountPrice: form.discountPrice ? parseFloat(form.discountPrice) : null,
           images,
           totalStock,
-          // Hediyelik eşyada varyant gönderilmez
+          // Adetli ürünlerde varyant gönderilmez
           variants: isGiftBox ? [] : variants,
         }),
       });
@@ -246,7 +253,14 @@ export default function YeniUrunPage() {
                   const newCatId = e.target.value;
                   const newCat = categories.find((c) => c.id === newCatId);
                   // Kategori değişince varyantları sıfırla
-                  if (newCat?.slug !== "hediyelik-kutu") {
+                  if (newCat && !(
+                    newCat.slug.includes("kutu") ||
+                    newCat.slug.includes("hediye") ||
+                    newCat.slug.includes("lokum") ||
+                    newCat.slug.includes("helva") ||
+                    newCat.slug.includes("pismaniye") ||
+                    newCat.slug.includes("ambalaj")
+                  )) {
                     setVariants(DEFAULT_WEIGHTS.map((w) => ({ weight: w, price: 0, stock: 0 })));
                   }
                   setForm((f) => ({ ...f, categoryId: newCatId, totalStock: "" }));
@@ -261,7 +275,7 @@ export default function YeniUrunPage() {
               {isGiftBox && (
                 <p className="mt-1.5 text-xs text-blue-600 flex items-center gap-1">
                   <Hash size={12} />
-                  Hediyelik eşya: Gramaj yoktur, sadece stok adedi girilir.
+                  Adetli Ürün: Gramaj yoktur, sadece stok adedi girilir (Örn: Lokum, Helva, Kutu).
                 </p>
               )}
               {!isGiftBox && form.categoryId && (
@@ -303,7 +317,7 @@ export default function YeniUrunPage() {
               />
             </div>
 
-            {/* Hediyelik eşya: sadece adet girişi */}
+            {/* Adetli ürünler: sadece adet girişi */}
             {isGiftBox && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -468,7 +482,7 @@ export default function YeniUrunPage() {
           )}
         </div>
 
-        {/* Gramaj Varyantları — Sadece hediyelik DIŞI kategorilerde göster */}
+        {/* Gramaj Varyantları — Sadece adetli OLMAYAN kategorilerde göster */}
         {!isGiftBox && form.categoryId && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <div className="flex items-center justify-between mb-5">
