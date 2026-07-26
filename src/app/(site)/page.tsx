@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Leaf, ShieldCheck, Heart } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // 5 dakika önbellekleme (performans artışı için)
 
 export const metadata: Metadata = {
   title: {

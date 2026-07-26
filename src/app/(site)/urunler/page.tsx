@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import ProductsClient from "./ProductsClient";
 
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Tüm Ürünler | Çorum Hatırası, LüksLeb ve Hediyelik Kutular",
