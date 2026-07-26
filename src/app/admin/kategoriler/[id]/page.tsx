@@ -273,7 +273,7 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
                   Görsel URL
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   value={form.image}
                   onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
                   placeholder="https://example.com/gorsel.jpg (opsiyonel)"
