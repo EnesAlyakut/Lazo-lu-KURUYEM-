@@ -94,34 +94,11 @@ export default function Navbar() {
     return () => document.body.classList.remove("mobile-menu-open");
   }, [isMenuOpen]);
 
-  const [announcementIndex, setAnnouncementIndex] = useState(0);
 
-  const announcements = [
-    "Taze taze kavruldu, kokuya gel! 🥜",
-    "Çay demlendiyse, yanına fıstık bizden! 🫖",
-    "Enerjiniz mi düştü? Bir avuç kuru üzüm yeter! 🍇",
-    "Bugün de tazecik leblebilerimizle kalpleri ısıtıyoruz. ❤️",
-    "Gülümsemek bedava, en taze kuruyemişler burada! 😊",
-    "Muhabbet koyuysa, çerez tabağı boş kalmaz! 🌰",
-    "Çorum'un sıcacık leblebisi, akşam keyfinize keyif katsın. ✨"
-  ];
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setAnnouncementIndex((prev) => (prev + 1) % announcements.length);
-    }, 7000);
-    return () => clearInterval(timer);
-  }, [announcements.length]);
 
   return (
     <>
-      <div className="bg-gradient-to-r from-brand-700 via-brand-600 to-amber-500 py-1.5 text-center text-[11px] font-medium text-white sm:py-2 sm:text-sm">
-        <span className="container-main flex items-center justify-center gap-2 leading-snug px-3">
-          <span key={announcementIndex} className="animate-fade-in">
-            {announcements[announcementIndex]}
-          </span>
-        </span>
-      </div>
+
 
       <nav
         className={`sticky top-0 z-50 transition-all duration-300 ${
