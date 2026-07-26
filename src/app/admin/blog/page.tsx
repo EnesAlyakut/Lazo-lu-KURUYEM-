@@ -25,8 +25,60 @@ export default async function AdminBlogPage() {
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div className="overflow-x-auto">
+      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
+        {/* Mobil Görünüm */}
+        <div className="grid grid-cols-1 gap-4 p-4 md:hidden">
+          {posts.map((post) => (
+            <div key={post.id} className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+              <div className="mb-2 flex items-start justify-between">
+                <div className="min-w-0 flex-1">
+                  <p className="line-clamp-2 text-sm font-bold text-gray-900">{post.title}</p>
+                  <p className="mt-0.5 truncate font-mono text-xs text-gray-400">{post.slug}</p>
+                </div>
+                <div className="ml-3 flex shrink-0 items-center gap-1">
+                  <Link
+                    href={`/admin/blog/${post.id}`}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-500 transition-colors hover:bg-blue-100"
+                  >
+                    <Edit size={16} />
+                  </Link>
+                  {post.isPublished && (
+                    <Link
+                      href={`/blog/${post.slug}`}
+                      target="_blank"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100"
+                    >
+                      <Eye size={16} />
+                    </Link>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-gray-600">{post.authorName}</span>
+                  <div className="flex items-center gap-1 text-[10px] text-gray-400">
+                    <Calendar size={10} />
+                    {new Date(post.createdAt).toLocaleDateString("tr-TR")}
+                  </div>
+                </div>
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold uppercase ${
+                    post.isPublished ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {post.isPublished ? <Eye size={10} /> : <EyeOff size={10} />}
+                  {post.isPublished ? "Yayında" : "Taslak"}
+                </span>
+              </div>
+            </div>
+          ))}
+          {posts.length === 0 && (
+            <div className="py-8 text-center text-gray-400">Henüz blog yazısı yok.</div>
+          )}
+        </div>
+
+        {/* Masaüstü Görünüm */}
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>

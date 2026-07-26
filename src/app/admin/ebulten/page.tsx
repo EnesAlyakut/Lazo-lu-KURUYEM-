@@ -55,7 +55,32 @@ export default async function AdminEbultenPage() {
           <h2 className="font-bold text-gray-900">Abone Listesi</h2>
           <span className="text-sm text-gray-500">Son 100 kayıt</span>
         </div>
-        <div className="overflow-x-auto">
+        {/* Mobil Görünüm */}
+        <div className="grid grid-cols-1 gap-3 p-4 md:hidden">
+          {subscribers.map((sub) => (
+            <div key={sub.id} className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+              <div className="mb-2 text-sm font-semibold text-gray-900 break-all">{sub.email}</div>
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
+                <span className="text-xs text-gray-500">
+                  {new Date(sub.createdAt).toLocaleDateString("tr-TR")}
+                </span>
+                <span
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
+                    sub.isActive ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {sub.isActive ? "Aktif" : "Pasif"}
+                </span>
+              </div>
+            </div>
+          ))}
+          {subscribers.length === 0 && (
+            <div className="py-8 text-center text-gray-400">Henüz abone yok.</div>
+          )}
+        </div>
+
+        {/* Masaüstü Görünüm */}
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>

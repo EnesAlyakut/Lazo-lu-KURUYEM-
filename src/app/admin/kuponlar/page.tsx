@@ -23,8 +23,76 @@ export default async function AdminKuponlarPage() {
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div className="overflow-x-auto">
+      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
+        {/* Mobil Görünüm */}
+        <div className="grid grid-cols-1 gap-4 p-4 md:hidden">
+          {coupons.map((coupon) => {
+            const isExpired = coupon.expiresAt && coupon.expiresAt < new Date();
+            const isLimitReached = coupon.maxUses && coupon.usedCount >= coupon.maxUses;
+            const isEffectivelyActive = coupon.isActive && !isExpired && !isLimitReached;
+
+            return (
+              <div key={coupon.id} className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Tag size={16} className="text-brand-500" />
+                    <span className="font-mono text-base font-bold text-gray-900">{coupon.code}</span>
+                  </div>
+                  <Link
+                    href={`/admin/kuponlar/${coupon.id}`}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-500 transition-colors hover:bg-blue-100"
+                  >
+                    <Edit size={16} />
+                  </Link>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Değer:</span>
+                    <span className="font-semibold text-gray-900">
+                      {coupon.type === "PERCENTAGE" ? `%${coupon.value}` : `${coupon.value.toFixed(2)} ₺`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Kullanım:</span>
+                    <span>
+                      <span className="font-medium text-gray-900">{coupon.usedCount}</span>
+                      {coupon.maxUses && <span className="text-gray-400"> / {coupon.maxUses}</span>}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Son Tarih:</span>
+                    <span className="text-gray-700">
+                      {coupon.expiresAt ? new Date(coupon.expiresAt).toLocaleDateString("tr-TR") : "Süresiz"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
+                    <span className="text-gray-500">Durum:</span>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold uppercase ${
+                        isEffectivelyActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {isEffectivelyActive ? <CheckCircle size={10} /> : <XCircle size={10} />}
+                      {isExpired
+                        ? "Süresi Doldu"
+                        : isLimitReached
+                          ? "Limit Doldu"
+                          : coupon.isActive
+                            ? "Aktif"
+                            : "Pasif"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {coupons.length === 0 && (
+            <div className="py-8 text-center text-gray-400">Henüz kupon yok.</div>
+          )}
+        </div>
+
+        {/* Masaüstü Görünüm */}
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>

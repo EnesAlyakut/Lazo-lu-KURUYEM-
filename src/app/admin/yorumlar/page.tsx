@@ -106,85 +106,188 @@ export default function AdminReviewsPage() {
             <p>Bu filtrede henüz hiç yorum yok.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50/50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Müşteri / Puan</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Yorum</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Ürün</th>
-                  <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Durum</th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">İşlemler</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
-                {reviews.map((review) => (
-                  <tr key={review.id} className="hover:bg-gray-50/80 transition-colors">
-                    <td className="px-6 py-4">
+          <>
+            {/* Mobil Görünüm */}
+            <div className="grid grid-cols-1 gap-4 p-4 md:hidden">
+              {reviews.map((review) => (
+                <div key={review.id} className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                  <div className="mb-3 flex items-start justify-between border-b border-gray-200 pb-3">
+                    <div>
                       <div className="font-semibold text-gray-900">{review.authorName}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{review.email || "E-posta yok"}</div>
-                      <div className="mt-2 flex text-amber-400 text-sm">
+                      <div className="mt-1 flex text-amber-400 text-xs">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <span key={i}>{i < review.rating ? "★" : "☆"}</span>
                         ))}
                       </div>
-                      <div className="text-[11px] text-gray-400 mt-1">{dayjs(review.createdAt).format("DD.MM.YYYY HH:mm")}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm text-gray-600 max-w-md break-words">{review.comment}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      {review.product ? (
-                        <Link href={`/urunler/${review.product.slug}`} target="_blank" className="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline flex items-center gap-1.5">
-                          {review.product.name}
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </Link>
-                      ) : (
-                        <span className="text-sm text-gray-400 italic">Ürün silinmiş</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-center">
+                    </div>
+                    <div className="text-right">
                       {review.isApproved ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-green-50 text-green-700 border border-green-200/60 shadow-sm">
+                        <span className="inline-block rounded bg-green-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-green-700">
                           Yayında
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/60 shadow-sm">
+                        <span className="inline-block rounded bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-amber-700">
                           Bekliyor
                         </span>
                       )}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => handleApproveToggle(review.id, review.isApproved)}
-                          className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-xs font-semibold shadow-sm ${
-                            review.isApproved
-                              ? "text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200"
-                              : "text-green-700 bg-green-50 hover:bg-green-100 border border-green-200"
-                          }`}
-                          title={review.isApproved ? "Onayı Kaldır (Gizle)" : "Onayla (Yayınla)"}
-                        >
-                          {review.isApproved ? (
-                            <><X size={14} /> Gizle</>
-                          ) : (
-                            <><Check size={14} /> Onayla</>
-                          )}
-                        </button>
-                        <button
-                          onClick={() => handleDelete(review.id)}
-                          className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Sil"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                      <div className="mt-1 text-[10px] text-gray-400">
+                        {dayjs(review.createdAt).format("DD.MM.YYYY HH:mm")}
                       </div>
-                    </td>
+                    </div>
+                  </div>
+
+                  <p className="mb-3 text-sm text-gray-700">{review.comment}</p>
+
+                  <div className="mb-4">
+                    {review.product ? (
+                      <Link
+                        href={`/urunler/${review.product.slug}`}
+                        target="_blank"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:underline"
+                      >
+                        {review.product.name}
+                        <ExternalLink size={12} />
+                      </Link>
+                    ) : (
+                      <span className="text-xs italic text-gray-400">Ürün silinmiş</span>
+                    )}
+                  </div>
+
+                  <div className="flex justify-between gap-2 border-t border-gray-200 pt-3">
+                    <button
+                      onClick={() => handleApproveToggle(review.id, review.isApproved)}
+                      className={`flex flex-1 items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
+                        review.isApproved
+                          ? "bg-amber-100 text-amber-700 hover:bg-amber-200"
+                          : "bg-green-100 text-green-700 hover:bg-green-200"
+                      }`}
+                    >
+                      {review.isApproved ? (
+                        <>
+                          <X size={14} /> Gizle
+                        </>
+                      ) : (
+                        <>
+                          <Check size={14} /> Onayla
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(review.id)}
+                      className="flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-500 transition-colors hover:bg-red-100"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Masaüstü Görünüm */}
+            <div className="hidden overflow-x-auto md:block">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50/50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                      Müşteri / Puan
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                      Yorum
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                      Ürün
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                      Durum
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                      İşlemler
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white">
+                  {reviews.map((review) => (
+                    <tr key={review.id} className="transition-colors hover:bg-gray-50/80">
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-gray-900">{review.authorName}</div>
+                        <div className="mt-0.5 text-xs text-gray-500">
+                          {review.email || "E-posta yok"}
+                        </div>
+                        <div className="mt-2 flex text-sm text-amber-400">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <span key={i}>{i < review.rating ? "★" : "☆"}</span>
+                          ))}
+                        </div>
+                        <div className="mt-1 text-[11px] text-gray-400">
+                          {dayjs(review.createdAt).format("DD.MM.YYYY HH:mm")}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="max-w-md break-words text-sm text-gray-600">
+                          {review.comment}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4">
+                        {review.product ? (
+                          <Link
+                            href={`/urunler/${review.product.slug}`}
+                            target="_blank"
+                            className="flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline"
+                          >
+                            {review.product.name}
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </Link>
+                        ) : (
+                          <span className="italic text-sm text-gray-400">Ürün silinmiş</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        {review.isApproved ? (
+                          <span className="inline-flex items-center rounded-md border border-green-200/60 bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700 shadow-sm">
+                            Yayında
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-md border border-amber-200/60 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 shadow-sm">
+                            Bekliyor
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => handleApproveToggle(review.id, review.isApproved)}
+                            className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold shadow-sm transition-all ${
+                              review.isApproved
+                                ? "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
+                                : "border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
+                            }`}
+                            title={review.isApproved ? "Onayı Kaldır (Gizle)" : "Onayla (Yayınla)"}
+                          >
+                            {review.isApproved ? (
+                              <>
+                                <X size={14} /> Gizle
+                              </>
+                            ) : (
+                              <>
+                                <Check size={14} /> Onayla
+                              </>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(review.id)}
+                            className="rounded-lg p-1.5 text-red-500 transition-colors hover:bg-red-50 hover:text-red-700"
+                            title="Sil"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>
