@@ -66,7 +66,7 @@ export async function PATCH(req: NextRequest, context: Params) {
 
     const body = await req.json();
     const variants = normalizeVariants(body.variants);
-    const totalStock = variants
+    const totalStock = variants && variants.length > 0
       ? variants.reduce((sum, variant) => sum + variant.stock, 0)
       : Number(body.totalStock ?? 0);
 
