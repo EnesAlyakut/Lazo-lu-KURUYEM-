@@ -92,7 +92,7 @@ export default function SepetPage() {
                 className="card flex gap-3 p-3 sm:gap-4 sm:p-4"
               >
                 <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-gray-50 sm:h-28 sm:w-28">
-                  <Image src={item.image} alt={item.productName} fill className="object-cover" />
+                  <Image src={item.image} alt={item.productName} fill className="object-contain p-2" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <Link
