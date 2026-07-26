@@ -6,11 +6,12 @@ import { unauthorized, notFound, handleError } from "@/lib/apiErrors";
 /** GET /api/kategoriler/[id] */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const category = await prisma.category.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         products: {
           select: {
@@ -40,16 +41,17 @@ export async function GET(
 /** PUT /api/kategoriler/[id] - Admin only */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const admin = await requireAdmin(req);
     if (!admin) return unauthorized();
 
     const body = await req.json();
 
     const category = await prisma.category.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: body.name,
         slug: body.slug,
@@ -69,14 +71,15 @@ export async function PUT(
 /** DELETE /api/kategoriler/[id] - Admin only */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const admin = await requireAdmin(req);
     if (!admin) return unauthorized();
 
     const category = await prisma.category.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: { products: true },
@@ -94,7 +97,7 @@ export async function DELETE(
     }
 
     await prisma.category.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });

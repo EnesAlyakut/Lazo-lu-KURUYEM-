@@ -30,33 +30,33 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
   const [productCount, setProductCount] = useState(0);
 
   useEffect(() => {
-    fetchCategory();
-  }, [categoryId]);
+    const fetchCategory = async () => {
+      try {
+        const res = await fetch(`/api/kategoriler/${categoryId}`);
+        if (!res.ok) throw new Error("Kategori bulunamadı");
+        
+        const data = await res.json();
+        setForm({
+          name: data.name || "",
+          slug: data.slug || "",
+          description: data.description || "",
+          image: data.image || "",
+          order: data.order || 0,
+          isActive: data.isActive ?? true,
+        });
+        setProducts(data.products || []);
+        setProductCount(data._count?.products || 0);
+      } catch (error) {
+        console.error(error);
+        alert("Kategori yüklenirken bir hata oluştu");
+        router.push("/admin/kategoriler");
+      } finally {
+        setInitialLoading(false);
+      }
+    };
 
-  const fetchCategory = async () => {
-    try {
-      const res = await fetch(`/api/kategoriler/${categoryId}`);
-      if (!res.ok) throw new Error("Kategori bulunamadı");
-      
-      const data = await res.json();
-      setForm({
-        name: data.name || "",
-        slug: data.slug || "",
-        description: data.description || "",
-        image: data.image || "",
-        order: data.order || 0,
-        isActive: data.isActive ?? true,
-      });
-      setProducts(data.products || []);
-      setProductCount(data._count?.products || 0);
-    } catch (error) {
-      console.error(error);
-      alert("Kategori yüklenirken bir hata oluştu");
-      router.push("/admin/kategoriler");
-    } finally {
-      setInitialLoading(false);
-    }
-  };
+    fetchCategory();
+  }, [categoryId, router]);
 
   const slugify = (text: string) =>
     text
