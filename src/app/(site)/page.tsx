@@ -151,7 +151,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
             {topCategories[0] && (
               <Link href={`/urunler?kategori=${topCategories[0].slug}`} className="group relative rounded-[2rem] overflow-hidden h-72 sm:h-96 lg:col-span-2 shadow-lg hover:shadow-2xl transition-all duration-500">
-                <Image src={topCategories[0].image || "/images/karisik-kuruyemis.png"} alt={topCategories[0].name} fill className="object-cover group-hover:scale-105 group-hover:rotate-1 transition-all duration-700 ease-out" />
+                <Image src={topCategories[0].image ? (topCategories[0].image.startsWith('http') || topCategories[0].image.startsWith('/') ? topCategories[0].image : `/${topCategories[0].image}`) : "/images/karisik-kuruyemis.png"} alt={topCategories[0].name} fill className="object-cover group-hover:scale-105 group-hover:rotate-1 transition-all duration-700 ease-out" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#2a1208]/90 via-[#2a1208]/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
                 <div className="absolute inset-0 ring-1 ring-inset ring-white/20 rounded-[2rem] pointer-events-none z-20" />
 
@@ -168,7 +168,7 @@ export default async function HomePage() {
             <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:gap-8 lg:col-span-1">
               {topCategories.slice(1, 3).map((cat) => (
                 <Link key={cat.id} href={`/urunler?kategori=${cat.slug}`} className="group relative rounded-[2rem] overflow-hidden h-52 sm:h-[11.25rem] lg:h-[11.5rem] shadow-lg hover:shadow-2xl transition-all duration-500">
-                  <Image src={cat.image || "/images/leblebi-urun.png"} alt={cat.name} fill className="object-cover group-hover:scale-105 transition-all duration-700 ease-out" />
+                  <Image src={cat.image ? (cat.image.startsWith('http') || cat.image.startsWith('/') ? cat.image : `/${cat.image}`) : "/images/leblebi-urun.png"} alt={cat.name} fill className="object-cover group-hover:scale-105 transition-all duration-700 ease-out" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#2a1208]/95 via-[#2a1208]/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
                   <div className="absolute inset-0 ring-1 ring-inset ring-white/20 rounded-[2rem] pointer-events-none z-20" />
 

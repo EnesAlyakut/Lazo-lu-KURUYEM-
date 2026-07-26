@@ -34,7 +34,7 @@ export default function CategoriesSection({
             >
               <div className="relative aspect-square w-full overflow-hidden rounded-2xl mb-4 bg-gray-50 shadow-inner">
                 <Image
-                  src={cat.image || "https://images.unsplash.com/photo-1574484284002-952d92456975?w=400"}
+                  src={cat.image ? (cat.image.startsWith('http') || cat.image.startsWith('/') ? cat.image : `/${cat.image}`) : "https://images.unsplash.com/photo-1574484284002-952d92456975?w=400"}
                   alt={cat.name}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
