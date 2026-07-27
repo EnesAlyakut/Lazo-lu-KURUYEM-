@@ -65,3 +65,16 @@ export async function PATCH(req: NextRequest, context: Params) {
     return handleError(error);
   }
 }
+
+export async function DELETE(req: NextRequest, context: Params) {
+  try {
+    const { id } = await context.params;
+    const admin = await requireAdmin(req);
+    if (!admin) return unauthorized();
+
+    await prisma.order.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return handleError(error);
+  }
+}

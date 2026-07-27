@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Eye, Clock, CheckCircle, Package, Truck, XCircle } from "lucide-react";
+import DeleteOrderButton from "./DeleteOrderButton";
 import type { ElementType } from "react";
 
 export const dynamic = "force-dynamic";
@@ -90,13 +91,16 @@ export default async function AdminSiparislerPage() {
                     {new Date(order.createdAt).toLocaleDateString("tr-TR")}{" "}
                     {new Date(order.createdAt).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
                   </p>
-                  <Link
-                    href={`/admin/siparisler/${order.id}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-50 text-brand-600 rounded-lg text-xs font-semibold hover:bg-brand-100 transition-colors"
-                  >
-                    <Eye size={13} />
-                    Detay Gör
-                  </Link>
+                  <div className="flex items-center gap-1">
+                    <DeleteOrderButton id={order.id} status={order.status} />
+                    <Link
+                      href={`/admin/siparisler/${order.id}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-50 text-brand-600 rounded-lg text-xs font-semibold hover:bg-brand-100 transition-colors"
+                    >
+                      <Eye size={13} />
+                      Detay Gör
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -163,9 +167,12 @@ export default async function AdminSiparislerPage() {
                       {new Date(order.createdAt).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
                     </td>
                     <td className="px-4 py-3">
-                      <Link href={`/admin/siparisler/${order.id}`} className="w-8 h-8 flex items-center justify-center text-brand-500 hover:bg-brand-50 rounded-lg transition-colors">
-                        <Eye size={14} />
-                      </Link>
+                      <div className="flex items-center gap-1">
+                        <Link href={`/admin/siparisler/${order.id}`} className="w-8 h-8 flex items-center justify-center text-brand-500 hover:bg-brand-50 rounded-lg transition-colors">
+                          <Eye size={14} />
+                        </Link>
+                        <DeleteOrderButton id={order.id} status={order.status} />
+                      </div>
                     </td>
                   </tr>
                 );
