@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { Search, SearchX, SlidersHorizontal, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const filterOptions = [
   { label: "Tümü", value: "" },
@@ -25,6 +25,13 @@ export default function ProductsClient({
 }: any) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState(searchParams.ara || "");
+  const [pendingCategory, setPendingCategory] = useState<string | undefined>(searchParams.kategori);
+  const [pendingFilter, setPendingFilter] = useState<string>(searchParams.filtre || "");
+
+  useEffect(() => {
+    setPendingCategory(searchParams.kategori);
+    setPendingFilter(searchParams.filtre || "");
+  }, [searchParams.kategori, searchParams.filtre]);
 
   const buildUrl = (params: Record<string, string | undefined>) => {
     const merged = { ...searchParams, ...params };
@@ -94,27 +101,29 @@ export default function ProductsClient({
                 <div className="space-y-1">
                   <Link
                     href={buildUrl({ kategori: undefined, sayfa: "1" })}
+                    onClick={() => setPendingCategory(undefined)}
                     className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm transition-all ${
-                      !searchParams.kategori
+                      !pendingCategory
                         ? "bg-brand-600 font-medium text-white shadow-warm"
                         : "text-gray-600 hover:bg-brand-50 hover:text-brand-700"
                     }`}
                   >
                     Tüm Kategoriler
-                    {!searchParams.kategori && <ChevronRight size={14} />}
+                    {!pendingCategory && <ChevronRight size={14} />}
                   </Link>
                   {categories.map((cat: any) => (
                     <Link
                       key={cat.id}
                       href={buildUrl({ kategori: cat.slug, sayfa: "1" })}
+                      onClick={() => setPendingCategory(cat.slug)}
                       className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm transition-all ${
-                        searchParams.kategori === cat.slug
+                        pendingCategory === cat.slug
                           ? "bg-brand-600 font-medium text-white shadow-warm"
                           : "text-gray-600 hover:bg-brand-50 hover:text-brand-700"
                       }`}
                     >
                       {cat.name}
-                      {searchParams.kategori === cat.slug && <ChevronRight size={14} />}
+                      {pendingCategory === cat.slug && <ChevronRight size={14} />}
                     </Link>
                   ))}
                 </div>
@@ -130,8 +139,9 @@ export default function ProductsClient({
               <div className="flex snap-x gap-2">
                 <Link
                   href={buildUrl({ kategori: undefined, sayfa: "1" })}
+                  onClick={() => setPendingCategory(undefined)}
                   className={`snap-start whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors ${
-                    !searchParams.kategori
+                    !pendingCategory
                       ? "bg-brand-600 text-white"
                       : "border border-gray-200 bg-white text-gray-600"
                   }`}
@@ -142,8 +152,9 @@ export default function ProductsClient({
                   <Link
                     key={cat.id}
                     href={buildUrl({ kategori: cat.slug, sayfa: "1" })}
+                    onClick={() => setPendingCategory(cat.slug)}
                     className={`snap-start whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors ${
-                      searchParams.kategori === cat.slug
+                      pendingCategory === cat.slug
                         ? "bg-brand-600 text-white"
                         : "border border-gray-200 bg-white text-gray-600"
                     }`}
@@ -160,8 +171,9 @@ export default function ProductsClient({
                   <Link
                     key={opt.value}
                     href={buildUrl({ filtre: opt.value || undefined, sayfa: "1" })}
+                    onClick={() => setPendingFilter(opt.value)}
                     className={`snap-start whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors ${
-                      (searchParams.filtre || "") === opt.value
+                      pendingFilter === opt.value
                         ? "bg-brand-600 text-white"
                         : "border border-gray-200 bg-white text-gray-600"
                     }`}
@@ -242,9 +254,10 @@ export default function ProductsClient({
                   <Link
                     key={opt.value}
                     href={buildUrl({ filtre: opt.value || undefined, sayfa: "1" })}
+                    onClick={() => setPendingFilter(opt.value)}
                     className={`block rounded-xl px-3 py-2 text-sm transition-all ${
-                      (searchParams.filtre || "") === opt.value
-                        ? "bg-brand-100 font-medium text-brand-800 shadow-sm"
+                      pendingFilter === opt.value
+                        ? "bg-brand-600 font-medium text-white shadow-warm"
                         : "text-gray-600 hover:bg-brand-50 hover:text-brand-700"
                     }`}
                   >
