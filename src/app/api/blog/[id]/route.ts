@@ -3,10 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { unauthorized, handleError, notFound } from "@/lib/apiErrors";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+interface Params {
+  params: Promise<{ id: string }>;
+}
+
+export async function GET(req: NextRequest, context: Params) {
   try {
+    const { id } = await context.params;
     const post = await prisma.blogPost.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
     if (!post) return notFound();
     return NextResponse.json(post);
@@ -15,13 +20,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, context: Params) {
   try {
+    const { id } = await context.params;
     const admin = await requireAdmin(req);
     if (!admin) return unauthorized();
 
     const body = await req.json();
-    const existing = await prisma.blogPost.findUnique({ where: { id: params.id } });
+    const existing = await prisma.blogPost.findUnique({ where: { id } });
     if (!existing) return notFound();
 
     let publishedAt = existing.publishedAt;
@@ -32,7 +38,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 
     const updated = await prisma.blogPost.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title: body.title,
         slug: body.slug,
@@ -54,12 +60,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, context: Params) {
   try {
+    const { id } = await context.params;
     const admin = await requireAdmin(req);
     if (!admin) return unauthorized();
 
-    await prisma.blogPost.delete({ where: { id: params.id } });
+    await prisma.blogPost.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
     return handleError(error);
