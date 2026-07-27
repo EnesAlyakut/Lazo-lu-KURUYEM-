@@ -206,13 +206,13 @@ export default function OdemePage() {
               </h2>
               <p className="text-sm text-gray-500 mt-1">Lütfen ödemenizi tamamlamak için aşağıdaki formu doldurun.</p>
             </div>
-            <div className="w-full min-h-[650px] relative rounded-xl overflow-hidden border border-gray-100 bg-white">
+            <div className="w-full min-h-[750px] relative rounded-xl border border-gray-100 bg-white">
               <iframe
                 src={`https://www.paytr.com/odeme/guvenli/${paytrToken}`}
                 id="paytriframe"
                 frameBorder="0"
-                scrolling="no"
-                className="absolute inset-0 w-full h-full"
+                scrolling="yes"
+                className="absolute inset-0 w-full h-full rounded-xl"
               ></iframe>
             </div>
           </div>
