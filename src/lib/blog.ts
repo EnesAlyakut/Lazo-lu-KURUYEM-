@@ -1,4 +1,3 @@
-import { getBlogPosts } from "@/data/blogCatalog";
 import { prisma } from "@/lib/prisma";
 
 export interface PublicBlogPost {
@@ -28,7 +27,7 @@ export async function getPublicBlogPosts(): Promise<PublicBlogPost[]> {
     orderBy: { publishedAt: "desc" },
   });
 
-  const normalizedDatabasePosts: PublicBlogPost[] = databasePosts.map((post) => ({
+  return databasePosts.map((post) => ({
     id: post.id,
     title: post.title,
     slug: post.slug,
@@ -42,13 +41,6 @@ export async function getPublicBlogPosts(): Promise<PublicBlogPost[]> {
     metaDescription: post.metaDescription || post.excerpt || "",
     content: post.content,
   }));
-
-  const databaseSlugs = new Set(normalizedDatabasePosts.map((post) => post.slug));
-  const catalogPosts = getBlogPosts().filter((post) => !databaseSlugs.has(post.slug));
-
-  return [...normalizedDatabasePosts, ...catalogPosts].sort(
-    (a, b) => b.publishedAt.getTime() - a.publishedAt.getTime()
-  );
 }
 
 export async function getPublicBlogPostBySlug(slug: string) {
