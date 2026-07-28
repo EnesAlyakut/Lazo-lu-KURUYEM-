@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+interface Params {
+  params: Promise<{ id: string }>;
+}
+
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: Params
 ) {
   try {
     const admin = await requireAdmin(req);
@@ -12,7 +16,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
     }
 
-    const id = params.id;
+    const { id } = await context.params;
     if (!id) {
       return NextResponse.json({ error: "Kupon ID bulunamadı" }, { status: 400 });
     }
