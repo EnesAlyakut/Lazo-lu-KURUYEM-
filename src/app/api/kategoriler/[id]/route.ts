@@ -59,6 +59,7 @@ export async function PUT(
         image: body.image,
         order: body.order,
         isActive: body.isActive,
+        unitType: body.unitType,
       },
     });
 

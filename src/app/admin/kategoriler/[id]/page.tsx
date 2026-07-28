@@ -24,6 +24,7 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
     image: "",
     order: 0,
     isActive: true,
+    unitType: "GRAMAJ",
   });
 
   const [products, setProducts] = useState<any[]>([]);
@@ -43,6 +44,7 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
           image: data.image || "",
           order: data.order || 0,
           isActive: data.isActive ?? true,
+          unitType: data.unitType || "GRAMAJ",
         });
         setProducts(data.products || []);
         setProductCount(data._count?.products || 0);
@@ -113,6 +115,7 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
           image: form.image || undefined,
           order: Number(form.order),
           isActive: form.isActive,
+          unitType: form.unitType,
         }),
       });
 
@@ -242,6 +245,21 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
                   placeholder="Kategori hakkında kısa açıklama (opsiyonel)"
                   className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent resize-none"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Birim Tipi
+                </label>
+                <select
+                  value={form.unitType}
+                  onChange={(e) => setForm((f) => ({ ...f, unitType: e.target.value }))}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent bg-white"
+                >
+                  <option value="GRAMAJ">Gramajlı Satış (Örn: 250g, 500g)</option>
+                  <option value="ADET">Adetli Satış (Örn: 1 Adet, 2 Adet)</option>
+                </select>
+                <p className="text-xs text-gray-400 mt-1">Bu kategorideki ürünlerin nasıl satılacağını belirler</p>
               </div>
 
               <div>
