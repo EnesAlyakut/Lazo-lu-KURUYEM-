@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
-import { handleError, unauthorized } from "@/lib/apiErrors";
 import { prisma } from "@/lib/prisma";
 
 export async function DELETE(
@@ -9,12 +8,25 @@ export async function DELETE(
 ) {
   try {
     const admin = await requireAdmin(req);
-    if (!admin) return unauthorized();
+    if (!admin) {
+      return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
+    }
 
-    await prisma.coupon.delete({ where: { id: params.id } });
+    const id = params.id;
+    if (!id) {
+      return NextResponse.json({ error: "Kupon ID bulunamadı" }, { status: 400 });
+    }
+
+    await prisma.coupon.delete({
+      where: { id },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return handleError(error);
+    console.error("Kupon silme hatası:", error);
+    return NextResponse.json(
+      { error: "Kupon silinirken bir hata oluştu" },
+      { status: 500 }
+    );
   }
 }
