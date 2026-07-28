@@ -257,7 +257,6 @@ export default function EditKuponPage({ params }: PageProps) {
             </button>
           </div>
         </div>
-        </div>
       </form>
     </div>
   );
