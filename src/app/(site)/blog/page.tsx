@@ -4,7 +4,7 @@ import Image from "next/image";
 import { BookOpen, ArrowRight, User, Clock } from "lucide-react";
 import { getPublicBlogPosts } from "@/lib/blog";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Blog | Çorum Hatırası, LüksLeb ve Hediyelik Leblebi",

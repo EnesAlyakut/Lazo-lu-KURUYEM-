@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { withoutBrandSuffix } from "@/lib/metadata";
 import ProductDetailClient from "./ProductDetailClient";
 
+export const revalidate = 60; // Cache product details for 60 seconds
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
