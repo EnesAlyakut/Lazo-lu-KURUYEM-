@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 
-export const revalidate = 3600; // Cache sitemap for 1 hour
+export const dynamic = "force-dynamic";
 
 const BASE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://lazoglukuruyemis.com").replace(
   /\/$/,

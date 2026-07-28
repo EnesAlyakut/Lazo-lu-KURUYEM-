@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Leaf, ShieldCheck, Heart } from "lucide-react";
 
-export const revalidate = 60; // 60 seconds cache for blazing fast load times
+export const dynamic = "force-dynamic"; // Reverted because Docker build requires DB connection for static generation
 
 export const metadata: Metadata = {
   title: {

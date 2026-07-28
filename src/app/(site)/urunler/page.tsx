@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import ProductsClient from "./ProductsClient";
 
-// export const dynamic = "force-dynamic"; // Removed to allow caching
+export const dynamic = "force-dynamic";
 
 
 export const metadata: Metadata = {
