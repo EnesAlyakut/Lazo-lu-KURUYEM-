@@ -22,6 +22,7 @@ interface Category {
   id: string;
   name: string;
   slug: string;
+  unitType?: string;
 }
 
 interface Variant {
@@ -68,14 +69,7 @@ export default function YeniUrunPage() {
   });
 
   const selectedCategory = categories.find((c) => c.id === form.categoryId);
-  const isGiftBox = selectedCategory ? (
-    selectedCategory.slug.includes("kutu") ||
-    selectedCategory.slug.includes("hediye") ||
-    selectedCategory.slug.includes("lokum") ||
-    selectedCategory.slug.includes("helva") ||
-    selectedCategory.slug.includes("pismaniye") ||
-    selectedCategory.slug.includes("ambalaj")
-  ) : false;
+  const isGiftBox = selectedCategory?.unitType === "ADET";
 
   // Toplam stok hesabı
   const totalStock = isGiftBox
@@ -253,15 +247,9 @@ export default function YeniUrunPage() {
                   const newCatId = e.target.value;
                   const newCat = categories.find((c) => c.id === newCatId);
                   // Kategori değişince varyantları sıfırla
-                  if (newCat && !(
-                    newCat.slug.includes("kutu") ||
-                    newCat.slug.includes("hediye") ||
-                    newCat.slug.includes("lokum") ||
-                    newCat.slug.includes("helva") ||
-                    newCat.slug.includes("pismaniye") ||
-                    newCat.slug.includes("ambalaj")
-                  )) {
+                  if (newCat && newCat.unitType !== "ADET") {
                     setVariants(DEFAULT_WEIGHTS.map((w) => ({ weight: w, price: 0, stock: 0 })));
+                  }));
                   }
                   setForm((f) => ({ ...f, categoryId: newCatId, totalStock: "" }));
                 }}

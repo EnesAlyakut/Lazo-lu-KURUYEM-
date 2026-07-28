@@ -22,6 +22,7 @@ interface Category {
   id: string;
   name: string;
   slug: string;
+  unitType?: string;
 }
 
 interface Variant {
@@ -91,14 +92,7 @@ export default function UrunDuzenlePage({
   });
 
   const selectedCategory = categories.find((c) => c.id === form.categoryId);
-  const isGiftBox = selectedCategory ? (
-    selectedCategory.slug.includes("kutu") ||
-    selectedCategory.slug.includes("hediye") ||
-    selectedCategory.slug.includes("lokum") ||
-    selectedCategory.slug.includes("helva") ||
-    selectedCategory.slug.includes("pismaniye") ||
-    selectedCategory.slug.includes("ambalaj")
-  ) : false;
+  const isGiftBox = selectedCategory?.unitType === "ADET";
 
   // Toplam stok
   const totalStock = isGiftBox
@@ -127,14 +121,7 @@ export default function UrunDuzenlePage({
 
         // Eğer mevcut ürünün variantı yoksa ve hediyelik değilse varsayılan ekle
         const cat = categoryData.find((c) => c.id === product.categoryId);
-        const isGift = cat ? (
-          cat.slug.includes("kutu") ||
-          cat.slug.includes("hediye") ||
-          cat.slug.includes("lokum") ||
-          cat.slug.includes("helva") ||
-          cat.slug.includes("pismaniye") ||
-          cat.slug.includes("ambalaj")
-        ) : false;
+        const isGift = cat?.unitType === "ADET";
 
         if (!isGift && (!product.variants || product.variants.length === 0)) {
           setVariants(DEFAULT_WEIGHTS.map((w) => ({ weight: w, price: 0, stock: 0 })));
@@ -317,17 +304,11 @@ export default function UrunDuzenlePage({
                 value={form.categoryId}
                 onChange={(e) => {
                   const cat = categories.find((c) => c.id === e.target.value);
-                  if (cat && (
-                    cat.slug.includes("kutu") ||
-                    cat.slug.includes("hediye") ||
-                    cat.slug.includes("lokum") ||
-                    cat.slug.includes("helva") ||
-                    cat.slug.includes("pismaniye") ||
-                    cat.slug.includes("ambalaj")
-                  )) {
+                  if (cat && cat.unitType === "ADET") {
                     setVariants([]);
                   } else if (variants.length === 0) {
                     setVariants(DEFAULT_WEIGHTS.map((w) => ({ weight: w, price: 0, stock: 0 })));
+                  }));
                   }
                   setForm((f) => ({ ...f, categoryId: e.target.value }));
                 }}
