@@ -249,7 +249,6 @@ export default function YeniUrunPage() {
                   // Kategori değişince varyantları sıfırla
                   if (newCat && newCat.unitType !== "ADET") {
                     setVariants(DEFAULT_WEIGHTS.map((w) => ({ weight: w, price: 0, stock: 0 })));
-                  }));
                   }
                   setForm((f) => ({ ...f, categoryId: newCatId, totalStock: "" }));
                 }}

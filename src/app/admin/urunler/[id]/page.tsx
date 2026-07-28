@@ -308,7 +308,6 @@ export default function UrunDuzenlePage({
                     setVariants([]);
                   } else if (variants.length === 0) {
                     setVariants(DEFAULT_WEIGHTS.map((w) => ({ weight: w, price: 0, stock: 0 })));
-                  }));
                   }
                   setForm((f) => ({ ...f, categoryId: e.target.value }));
                 }}
