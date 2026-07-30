@@ -2,7 +2,19 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
-  const categoryId = 'cms05zrxp0000tcqiqrb5jb4n';
+  let category = await prisma.category.findFirst({
+    where: { name: { contains: 'Çorum Kuruyemiş' } }
+  });
+
+  if (!category) {
+    category = await prisma.category.findFirst();
+  }
+  
+  if (!category) {
+    throw new Error('No categories found in the database. Please create a category first.');
+  }
+
+  const categoryId = category.id;
 
   // Product 1
   const p1 = await prisma.product.upsert({
